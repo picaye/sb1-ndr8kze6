@@ -1,0 +1,21 @@
+export const appenzellAusserrhodenMunicipalities = [
+  { name: 'Herisau', taxMultiplier: 163 },
+  { name: 'Teufen', taxMultiplier: 155 },
+  { name: 'Speicher', taxMultiplier: 158 },
+  { name: 'Heiden', taxMultiplier: 165 },
+  { name: 'Bühler', taxMultiplier: 165 },
+  { name: 'Gais', taxMultiplier: 163 },
+  { name: 'Stein', taxMultiplier: 165 },
+  { name: 'Hundwil', taxMultiplier: 168 },
+  { name: 'Schönengrund', taxMultiplier: 168 },
+  { name: 'Urnäsch', taxMultiplier: 168 },
+  { name: 'Waldstatt', taxMultiplier: 165 },
+  { name: 'Rehetobel', taxMultiplier: 165 },
+  { name: 'Wolfhalden', taxMultiplier: 165 },
+  { name: 'Walzenhausen', taxMultiplier: 168 },
+  { name: 'Reute', taxMultiplier: 168 },
+  { name: 'Lutzenberg', taxMultiplier: 168 },
+  { name: 'Grub', taxMultiplier: 168 },
+  { name: 'Schwellbrunn', taxMultiplier: 168 },
+  { name: 'Trogen', taxMultiplier: 165 }
+];

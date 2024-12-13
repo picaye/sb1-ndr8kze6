@@ -1,0 +1,21 @@
+export const thurgauMunicipalities = [
+  { name: 'Frauenfeld', taxMultiplier: 117 },
+  { name: 'Kreuzlingen', taxMultiplier: 113 },
+  { name: 'Arbon', taxMultiplier: 122 },
+  { name: 'Amriswil', taxMultiplier: 120 },
+  { name: 'Weinfelden', taxMultiplier: 115 },
+  { name: 'Romanshorn', taxMultiplier: 121 },
+  { name: 'Sirnach', taxMultiplier: 119 },
+  { name: 'Aadorf', taxMultiplier: 117 },
+  { name: 'Münchwilen', taxMultiplier: 118 },
+  { name: 'Bischofszell', taxMultiplier: 123 },
+  { name: 'Diessenhofen', taxMultiplier: 120 },
+  { name: 'Steckborn', taxMultiplier: 119 },
+  { name: 'Eschlikon', taxMultiplier: 118 },
+  { name: 'Erlen', taxMultiplier: 120 },
+  { name: 'Wigoltingen', taxMultiplier: 119 },
+  { name: 'Bürglen', taxMultiplier: 121 },
+  { name: 'Sulgen', taxMultiplier: 118 },
+  { name: 'Rickenbach', taxMultiplier: 119 },
+  { name: 'Wängi', taxMultiplier: 120 }
+];

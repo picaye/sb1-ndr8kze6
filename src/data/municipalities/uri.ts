@@ -1,0 +1,21 @@
+export const uriMunicipalities = [
+  { name: 'Altdorf', taxMultiplier: 100 },
+  { name: 'Andermatt', taxMultiplier: 95 },
+  { name: 'Attinghausen', taxMultiplier: 102 },
+  { name: 'Bauen', taxMultiplier: 100 },
+  { name: 'Bürglen', taxMultiplier: 103 },
+  { name: 'Erstfeld', taxMultiplier: 102 },
+  { name: 'Flüelen', taxMultiplier: 100 },
+  { name: 'Göschenen', taxMultiplier: 98 },
+  { name: 'Gurtnellen', taxMultiplier: 105 },
+  { name: 'Hospental', taxMultiplier: 95 },
+  { name: 'Isenthal', taxMultiplier: 105 },
+  { name: 'Realp', taxMultiplier: 95 },
+  { name: 'Schattdorf', taxMultiplier: 100 },
+  { name: 'Seedorf', taxMultiplier: 100 },
+  { name: 'Seelisberg', taxMultiplier: 98 },
+  { name: 'Silenen', taxMultiplier: 105 },
+  { name: 'Sisikon', taxMultiplier: 100 },
+  { name: 'Spiringen', taxMultiplier: 105 },
+  { name: 'Unterschächen', taxMultiplier: 105 }
+];

@@ -1,0 +1,21 @@
+export const solothurnMunicipalities = [
+  { name: 'Solothurn', taxMultiplier: 180 },
+  { name: 'Olten', taxMultiplier: 185 },
+  { name: 'Grenchen', taxMultiplier: 190 },
+  { name: 'Oensingen', taxMultiplier: 185 },
+  { name: 'Balsthal', taxMultiplier: 188 },
+  { name: 'Zuchwil', taxMultiplier: 195 },
+  { name: 'Trimbach', taxMultiplier: 192 },
+  { name: 'Dornach', taxMultiplier: 185 },
+  { name: 'Biberist', taxMultiplier: 190 },
+  { name: 'Gerlafingen', taxMultiplier: 195 },
+  { name: 'Bellach', taxMultiplier: 188 },
+  { name: 'Derendingen', taxMultiplier: 190 },
+  { name: 'Langendorf', taxMultiplier: 185 },
+  { name: 'Dulliken', taxMultiplier: 192 },
+  { name: 'Wangen bei Olten', taxMultiplier: 188 },
+  { name: 'Breitenbach', taxMultiplier: 185 },
+  { name: 'Laufen', taxMultiplier: 188 },
+  { name: 'Selzach', taxMultiplier: 187 },
+  { name: 'Subingen', taxMultiplier: 188 }
+];

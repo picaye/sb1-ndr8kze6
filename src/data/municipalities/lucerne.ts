@@ -1,0 +1,21 @@
+export const lucerneMunicipalities = [
+  { name: 'Luzern', taxMultiplier: 175 },
+  { name: 'Emmen', taxMultiplier: 187 },
+  { name: 'Kriens', taxMultiplier: 180 },
+  { name: 'Horw', taxMultiplier: 155 },
+  { name: 'Sursee', taxMultiplier: 170 },
+  { name: 'Ebikon', taxMultiplier: 178 },
+  { name: 'Littau', taxMultiplier: 185 },
+  { name: 'Willisau', taxMultiplier: 180 },
+  { name: 'Hochdorf', taxMultiplier: 175 },
+  { name: 'Rothenburg', taxMultiplier: 165 },
+  { name: 'Meggen', taxMultiplier: 145 },
+  { name: 'Root', taxMultiplier: 168 },
+  { name: 'Adligenswil', taxMultiplier: 165 },
+  { name: 'Eschenbach', taxMultiplier: 175 },
+  { name: 'Malters', taxMultiplier: 178 },
+  { name: 'Neuenkirch', taxMultiplier: 175 },
+  { name: 'Sempach', taxMultiplier: 160 },
+  { name: 'Weggis', taxMultiplier: 155 },
+  { name: 'Vitznau', taxMultiplier: 165 }
+];

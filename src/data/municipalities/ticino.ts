@@ -1,0 +1,21 @@
+export const ticinoMunicipalities = [
+  { name: 'Lugano', taxMultiplier: 100 },
+  { name: 'Bellinzona', taxMultiplier: 93 },
+  { name: 'Locarno', taxMultiplier: 90 },
+  { name: 'Mendrisio', taxMultiplier: 75 },
+  { name: 'Chiasso', taxMultiplier: 95 },
+  { name: 'Giubiasco', taxMultiplier: 93 },
+  { name: 'Minusio', taxMultiplier: 85 },
+  { name: 'Losone', taxMultiplier: 90 },
+  { name: 'Massagno', taxMultiplier: 80 },
+  { name: 'Paradiso', taxMultiplier: 65 },
+  { name: 'Ascona', taxMultiplier: 75 },
+  { name: 'Biasca', taxMultiplier: 95 },
+  { name: 'Agno', taxMultiplier: 85 },
+  { name: 'Gordola', taxMultiplier: 90 },
+  { name: 'Caslano', taxMultiplier: 85 },
+  { name: 'Stabio', taxMultiplier: 65 },
+  { name: 'Tenero-Contra', taxMultiplier: 90 },
+  { name: 'Novazzano', taxMultiplier: 75 },
+  { name: 'Maggia', taxMultiplier: 95 }
+];

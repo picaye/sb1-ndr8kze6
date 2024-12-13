@@ -1,0 +1,21 @@
+export const neuchatelMunicipalities = [
+  { name: 'Neuchâtel', taxMultiplier: 172 },
+  { name: 'La Chaux-de-Fonds', taxMultiplier: 175 },
+  { name: 'Le Locle', taxMultiplier: 175 },
+  { name: 'Val-de-Travers', taxMultiplier: 175 },
+  { name: 'Val-de-Ruz', taxMultiplier: 172 },
+  { name: 'Peseux', taxMultiplier: 172 },
+  { name: 'Boudry', taxMultiplier: 172 },
+  { name: 'Colombier', taxMultiplier: 170 },
+  { name: 'Corcelles-Cormondrèche', taxMultiplier: 170 },
+  { name: 'Cortaillod', taxMultiplier: 170 },
+  { name: 'Saint-Blaise', taxMultiplier: 170 },
+  { name: 'Bevaix', taxMultiplier: 172 },
+  { name: 'Marin-Epagnier', taxMultiplier: 170 },
+  { name: 'Le Landeron', taxMultiplier: 170 },
+  { name: 'Hauterive', taxMultiplier: 170 },
+  { name: 'Saint-Aubin-Sauges', taxMultiplier: 172 },
+  { name: 'Cernier', taxMultiplier: 172 },
+  { name: 'Fleurier', taxMultiplier: 175 },
+  { name: 'Les Ponts-de-Martel', taxMultiplier: 175 }
+];

@@ -1,0 +1,21 @@
+export const juraMunicipalities = [
+  { name: 'Delémont', taxMultiplier: 190 },
+  { name: 'Porrentruy', taxMultiplier: 195 },
+  { name: 'Bassecourt', taxMultiplier: 195 },
+  { name: 'Courrendlin', taxMultiplier: 195 },
+  { name: 'Courroux', taxMultiplier: 195 },
+  { name: 'Alle', taxMultiplier: 195 },
+  { name: 'Saignelégier', taxMultiplier: 190 },
+  { name: 'Courtételle', taxMultiplier: 195 },
+  { name: 'Fontenais', taxMultiplier: 195 },
+  { name: 'Vicques', taxMultiplier: 195 },
+  { name: 'Le Noirmont', taxMultiplier: 190 },
+  { name: 'Les Breuleux', taxMultiplier: 190 },
+  { name: 'Boncourt', taxMultiplier: 195 },
+  { name: 'Cornol', taxMultiplier: 195 },
+  { name: 'Courgenay', taxMultiplier: 195 },
+  { name: 'Develier', taxMultiplier: 195 },
+  { name: 'Bure', taxMultiplier: 195 },
+  { name: 'Boécourt', taxMultiplier: 195 },
+  { name: 'Les Bois', taxMultiplier: 190 }
+];

@@ -1,0 +1,21 @@
+export const fribourgMunicipalities = [
+  { name: 'Fribourg', taxMultiplier: 185 },
+  { name: 'Bulle', taxMultiplier: 175 },
+  { name: 'Villars-sur-Glâne', taxMultiplier: 165 },
+  { name: 'Marly', taxMultiplier: 181 },
+  { name: 'Düdingen', taxMultiplier: 175 },
+  { name: 'Murten', taxMultiplier: 170 },
+  { name: 'Estavayer', taxMultiplier: 180 },
+  { name: 'Romont', taxMultiplier: 185 },
+  { name: 'Wünnewil-Flamatt', taxMultiplier: 180 },
+  { name: 'Tafers', taxMultiplier: 175 },
+  { name: 'Kerzers', taxMultiplier: 170 },
+  { name: 'Bösingen', taxMultiplier: 175 },
+  { name: 'Schmitten', taxMultiplier: 175 },
+  { name: 'Plaffeien', taxMultiplier: 180 },
+  { name: 'Châtel-Saint-Denis', taxMultiplier: 175 },
+  { name: 'Givisiez', taxMultiplier: 165 },
+  { name: 'Granges-Paccot', taxMultiplier: 165 },
+  { name: 'Corminboeuf', taxMultiplier: 170 },
+  { name: 'Matran', taxMultiplier: 170 }
+];
