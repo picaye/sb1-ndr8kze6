@@ -43,6 +43,7 @@ export default {
       needAccount: 'Hai bisogno di un account?',
       continueWithGoogle: 'Continua con Google',
       orContinueWith: 'O continua con',
+      loginPrompt: 'Accedi per salvare i tuoi progressi e utilizzare tutte le funzionalità.',
       forgotPassword: {
         link: 'Password dimenticata?'
       },
@@ -91,6 +92,46 @@ export default {
         propertyOwnership: 'Proprietà Immobiliare',
         selfEmployed: 'Lavoratore Autonomo',
         spouseSelfEmployed: 'Lavoratore Autonomo (Coniuge)'
+      },
+      personalInfo: {
+        title: 'Informazioni Personali',
+        person1: {
+          title: 'Persona 1',
+          age: 'Età Persona 1',
+          religion: {
+            label: 'Religione Persona 1',
+            none: 'Nessuna',
+            romanCatholic: 'Cattolica romana',
+            protestant: 'Protestante',
+            other: 'Altra'
+          }
+        },
+        person2: {
+          title: 'Persona 2',
+          age: 'Età Persona 2',
+          religion: {
+            label: 'Religione Persona 2',
+            none: 'Nessuna',
+            romanCatholic: 'Cattolica romana',
+            protestant: 'Protestante',
+            other: 'Altra'
+          }
+        },
+        maritalStatus: {
+          label: 'Stato civile',
+          single: 'Celibe/Nubile',
+          married: 'Sposato/a',
+          registeredPartnership: 'Unione registrata',
+          divorced: 'Divorziato/a',
+          widowed: 'Vedovo/a'
+        },
+        canton: 'Cantone',
+        municipality: 'Comune',
+        selectMunicipality: 'Seleziona un comune',
+        children: {
+          question: 'Hai figli?',
+          number: 'Numero di figli'
+        }
       }
     },
     navigation: {

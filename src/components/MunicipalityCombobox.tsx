@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, ChevronDown, ChevronUp, Check } from 'lucide-react';
-import { getMunicipalitiesForCanton } from '../utils/swissData';
+import { getMunicipalitiesForCanton, filterMunicipalities } from '../utils/swissData';
 import { useOnClickOutside } from '../hooks/useOnClickOutside';
 
 interface Props {
@@ -26,11 +26,11 @@ export function MunicipalityCombobox({ canton, value, onChange, onValidationChan
 
   // Filter municipalities based on search term
   const filteredMunicipalities = React.useMemo(() => {
-    const normalizedSearch = searchTerm.toLowerCase().trim();
-    return municipalities.filter(municipality =>
-      municipality.toLowerCase().includes(normalizedSearch)
-    );
-  }, [municipalities, searchTerm]);
+    if (!searchTerm.trim()) {
+      return municipalities; // Show all municipalities if no search term
+    }
+    return filterMunicipalities(canton, searchTerm);
+  }, [canton, municipalities, searchTerm]);
 
   // Handle click outside
   useOnClickOutside(containerRef, () => {

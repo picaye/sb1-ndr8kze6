@@ -32,6 +32,7 @@ export default {
       needAccount: 'Brauchst du ein Konto?',
       continueWithGoogle: 'Mit Google fortfahren',
       orContinueWith: 'Oder fortfahren mit',
+      loginPrompt: 'Melden Sie sich an, um Ihren Fortschritt zu speichern und alle Funktionen zu nutzen.',
       forgotPassword: {
         link: 'Passwort vergessen?'
       },
