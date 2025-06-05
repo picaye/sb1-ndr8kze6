@@ -10,6 +10,7 @@ export interface PersonalInfo {
     age: string | number;
     religion: 'roman_catholic' | 'protestant' | 'other' | 'none';
   };
+  isWithholdingTaxEligible?: boolean;
 }
 
 export interface FinancialInfo {
@@ -27,4 +28,7 @@ export interface FinancialInfo {
   selfEmployed: boolean;
   spouseSelfEmployed?: boolean;
   currentTaxBurden: number;
+  totalWealth?: number;
+  totalLiabilities?: number;
+  additionalDeductions?: number;
 }
