@@ -1,45 +1,236 @@
-import React from 'react';
+import React, { Suspense, useEffect, Component, ErrorInfo, ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Header } from './components/Header';
-import { PersonalInfoForm } from './components/PersonalInfoForm';
-import { FinancialInfoForm } from './components/FinancialInfoForm';
-import { TaxOptimizationResults } from './components/TaxOptimizationResults';
-import { LoginForm } from './components/auth/LoginForm';
-import { AdminDashboard } from './components/admin/AdminDashboard';
-import { ContactPage } from './components/ContactPage';
-import { AboutPage } from './components/AboutPage';
-import { ProtectedRoute } from './components/layout/ProtectedRoute';
+import { useTranslation } from 'react-i18next';
+import { Toaster } from './components/ui/toaster';
 import { useAuthStore } from './stores/authStore';
+import { logSecurityEvent, sanitizeError, SECURITY_CONSTANTS } from './utils/security/validation';
+import { generateSecurityHeaders, warnIfInsecure, applySecurityHeaders, CSPConfig } from './utils/security/encryption';
 
-export default function App() {
-  // Auth store is used in ProtectedRoute component
-  useAuthStore();
+// Layouts
+import Header from './components/Header';
+import ProtectedRoute from './components/layout/ProtectedRoute';
+
+// Pages (Lazy Loaded)
+const HomePage = React.lazy(() => import('./pages/HomePage'));
+const AboutPage = React.lazy(() => import('./pages/AboutPage'));
+const ContactPage = React.lazy(() => import('./pages/ContactPage'));
+const LoginPage = React.lazy(() => import('./pages/LoginPage'));
+const ForgotPasswordPage = React.lazy(() => import('./pages/ForgotPasswordPage'));
+const TaxCalculatorPage = React.lazy(() => import('./pages/TaxCalculatorPage'));
+const TaxResultsPage = React.lazy(() => import('./pages/TaxResultsPage'));
+const AdminDashboardPage = React.lazy(() => import('./pages/AdminDashboardPage'));
+const AdminAffiliatesPage = React.lazy(() => import('./pages/AdminAffiliatesPage'));
+const AdminSettingsPage = React.lazy(() => import('./pages/AdminSettingsPage'));
+const AdminUsersPage = React.lazy(() => import('./pages/AdminUsersPage'));
+const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
+
+
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  errorId?: string;
+}
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(_: Error): ErrorBoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    const errorId = logSecurityEvent({
+      level: SECURITY_CONSTANTS.LOG_LEVELS.ERROR,
+      message: 'Unhandled application error caught by ErrorBoundary',
+      data: {
+        error: error.message,
+        componentStack: errorInfo.componentStack,
+      },
+    });
+    this.setState({ errorId: errorId?.toString() }); // Assuming logSecurityEvent returns an ID or similar
+    console.error("Uncaught error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      const sanitizedMessage = sanitizeError(new Error('An unexpected error occurred.'));
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Application Error</h1>
+          <p className="text-gray-700 mb-2">{sanitizedMessage}</p>
+          {this.state.errorId && <p className="text-sm text-gray-500">Error ID: {this.state.errorId}</p>}
+          <p className="text-gray-600 mt-4">
+            Please try refreshing the page or contact support if the problem persists.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Refresh Page
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+
+function App() {
+  const { i18n } = useTranslation();
+  const { isAuthenticated, isAdmin, user } = useAuthStore(state => ({
+    isAuthenticated: state.isAuthenticated,
+    isAdmin: state.user?.role === 'admin',
+    user: state.user,
+  }));
+
+  useEffect(() => {
+    // Initial language setup
+    const savedLanguage = localStorage.getItem('i18nextLng') || 'en';
+    i18n.changeLanguage(savedLanguage);
+
+    // Log application startup
+    logSecurityEvent({
+      level: SECURITY_CONSTANTS.LOG_LEVELS.INFO,
+      message: 'Application started',
+      data: { userAgent: navigator.userAgent, language: savedLanguage }
+    });
+
+    // Warn if running in an insecure context (HTTP)
+    warnIfInsecure();
+
+    // Apply security headers (conceptually, as these are best set by the server)
+    // For SPAs, some can be set via meta tags, but HTTP headers are more robust.
+    const cspConfig: CSPConfig = {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"], // 'unsafe-inline' might be needed for some dev setups or specific libraries, review for production
+      styleSrc: ["'self'", "'unsafe-inline'"],  // Same as above for styles
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'", "https://api.example.com"], // Replace with actual API endpoints
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      frameSrc: ["'none'"], // Disallow framing by default
+      upgradeInsecureRequests: true,
+    };
+    const headers = generateSecurityHeaders({ enableCSP: true, reportOnly: false });
+    
+    // This is a conceptual application. In a real server-rendered app or via server config:
+    // Object.entries(headers).forEach(([key, value]) => { /* set HTTP header */ });
+    // console.log("Applying conceptual security headers:", headers);
+    
+    // For client-side, we can set a CSP meta tag, though it's less effective than HTTP headers.
+    const cspMetaTag = document.createElement('meta');
+    cspMetaTag.httpEquiv = 'Content-Security-Policy';
+    cspMetaTag.content = buildCSP(cspConfig);
+    document.head.appendChild(cspMetaTag);
+    
+    logSecurityEvent({
+      level: SECURITY_CONSTANTS.LOG_LEVELS.INFO,
+      message: 'Conceptual security headers and CSP meta tag applied.',
+      data: { headers: Object.keys(headers), csp: cspMetaTag.content }
+    });
+
+  }, [i18n]);
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        
-        <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-          <Routes>
-            <Route path="/login" element={<LoginForm />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/" element={<PersonalInfoForm />} />
-            <Route path="/financial-info" element={<FinancialInfoForm />} />
-            <Route path="/results" element={<TaxOptimizationResults />} />
-            <Route
-              path="/admin/*"
-              element={
-                <ProtectedRoute requireAdmin requireAuth>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </main>
-      </div>
+      <ErrorBoundary>
+        <div className="flex flex-col min-h-screen bg-gray-50">
+          <Header />
+          <main className="flex-grow container mx-auto px-4 py-8">
+            <Suspense fallback={<div className="text-center py-10">{t('common.loading')}</div>}>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                
+                <Route 
+                  path="/calculator" 
+                  element={
+                    <ProtectedRoute
+                      isAuthenticated={isAuthenticated}
+                      element={<TaxCalculatorPage />}
+                    />
+                  } 
+                />
+                <Route 
+                  path="/results" 
+                  element={
+                    <ProtectedRoute
+                      isAuthenticated={isAuthenticated}
+                      element={<TaxResultsPage />}
+                    />
+                  } 
+                />
+
+                {/* Admin Routes */}
+                <Route 
+                  path="/admin" 
+                  element={
+                    <ProtectedRoute
+                      isAuthenticated={isAuthenticated}
+                      isAdminRoute={true}
+                      isAdmin={isAdmin}
+                      element={<AdminDashboardPage />}
+                    />
+                  } 
+                />
+                <Route 
+                  path="/admin/affiliates" 
+                  element={
+                    <ProtectedRoute
+                      isAuthenticated={isAuthenticated}
+                      isAdminRoute={true}
+                      isAdmin={isAdmin}
+                      element={<AdminAffiliatesPage />}
+                    />
+                  } 
+                />
+                <Route 
+                  path="/admin/settings" 
+                  element={
+                    <ProtectedRoute
+                      isAuthenticated={isAuthenticated}
+                      isAdminRoute={true}
+                      isAdmin={isAdmin}
+                      element={<AdminSettingsPage />}
+                    />
+                  } 
+                />
+                 <Route 
+                  path="/admin/users" 
+                  element={
+                    <ProtectedRoute
+                      isAuthenticated={isAuthenticated}
+                      isAdminRoute={true}
+                      isAdmin={isAdmin}
+                      element={<AdminUsersPage />}
+                    />
+                  } 
+                />
+                
+                <Route path="/404" element={<NotFoundPage />} />
+                <Route path="*" element={<Navigate to="/404" replace />} />
+              </Routes>
+            </Suspense>
+          </main>
+          <Toaster />
+          <footer className="bg-gray-100 text-center py-4 text-sm text-gray-600 border-t">
+            © {new Date().getFullYear()} {t('appName', {defaultValue: 'Swiss Tax Calculator AI'})}. {t('footer.allRightsReserved', {defaultValue: 'All rights reserved.'})}
+          </footer>
+        </div>
+      </ErrorBoundary>
     </Router>
   );
 }
+
+export default App;
