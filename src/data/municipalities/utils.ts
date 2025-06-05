@@ -1,4 +1,3 @@
-import { Municipality } from './types';
 import { municipalities } from './index';
 
 export function getMunicipalitiesForCanton(canton: string): string[] {

@@ -33,7 +33,21 @@ export function FinancialInfoForm() {
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (e.target.type === 'number' && e.target.value === '') {
       e.target.value = '0';
-      handleChange(e as any);
+      // Create a synthetic change event from the focus event
+      const syntheticEvent = {
+        target: e.target,
+        currentTarget: e.currentTarget,
+        bubbles: true,
+        cancelable: true,
+        defaultPrevented: false,
+        preventDefault: () => {},
+        isDefaultPrevented: () => false,
+        stopPropagation: () => {},
+        isPropagationStopped: () => false,
+        persist: () => {},
+      } as React.ChangeEvent<HTMLInputElement>;
+      
+      handleChange(syntheticEvent);
     }
   };
 

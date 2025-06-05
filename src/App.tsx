@@ -12,7 +12,8 @@ import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { useAuthStore } from './stores/authStore';
 
 export default function App() {
-  const { isAuthenticated, isAdmin } = useAuthStore();
+  // Auth store is used in ProtectedRoute component
+  useAuthStore();
 
   return (
     <Router>

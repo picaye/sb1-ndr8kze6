@@ -37,7 +37,7 @@ export function LoginForm() {
     try {
       await login(formData.email, formData.password, isSignUp);
       navigate('/');
-    } catch (error) {
+    } catch {
       setError(t('auth.validation.invalid'));
     }
   };
@@ -46,7 +46,7 @@ export function LoginForm() {
     try {
       await loginWithGoogle();
       navigate('/');
-    } catch (error) {
+    } catch {
       setError(t('auth.validation.googleError'));
     }
   };

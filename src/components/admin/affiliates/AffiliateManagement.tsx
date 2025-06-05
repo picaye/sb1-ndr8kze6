@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Plus } from 'lucide-react';
 import { AffiliateList } from './AffiliateList';
 import { AffiliateForm } from './AffiliateForm';
-import { useAffiliateStore } from '../../../stores/affiliateStore';
 
 export function AffiliateManagement() {
   const { t } = useTranslation();

@@ -1,6 +1,5 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { PersonalInfo, FinancialInfo } from '../types/TaxInfo';
 import { generateAIOptimizations } from '../utils/aiTaxOptimizer';
 import { AIOptimizationCard } from './AIOptimizationCard';
 import { TaxBreakdown } from './TaxBreakdown';

@@ -1,4 +1,3 @@
-import { Municipality } from '../types';
 import { DEFAULT_TAX_MULTIPLIERS } from '../constants';
 import { getMunicipalityData } from './validation';
 

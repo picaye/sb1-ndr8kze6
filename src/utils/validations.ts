@@ -10,7 +10,6 @@ export function validatePillar3aContribution(amount: number | string, yearlyInco
 
   // 2024 limits
   const EMPLOYED_LIMIT = 7056;
-  const SELF_EMPLOYED_LIMIT = 35280;
   
   // Basic validation
   if (numericAmount < 0) {

@@ -22,7 +22,7 @@ export function ForgotPasswordForm({ onBack }: Props) {
     try {
       await resetPassword(email);
       setStatus('success');
-    } catch (error) {
+    } catch {
       setStatus('error');
       setError(t('auth.validation.emailNotFound'));
     }
