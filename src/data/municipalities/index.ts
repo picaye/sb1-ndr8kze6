@@ -52,5 +52,10 @@ export const municipalities: Record<string, Municipality[]> = {
   'Valais': valaisMunicipalities,
   'Vaud': vaudMunicipalities,
   'Zug': zugMunicipalities,
-  'Zürich': zurichMunicipalities
+  'Zürich': zurichMunicipalities,
+  
+  // Add alternative spellings to handle encoding issues
+  'Zurich': zurichMunicipalities,
+  'Graubunden': graubuendenMunicipalities,
+  'Neuchatel': neuchatelMunicipalities
 };

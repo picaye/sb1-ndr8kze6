@@ -2,13 +2,12 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
+  base: './', // Use relative paths instead of absolute paths
   plugins: [react()],
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
-  server: {
-    historyApiFallback: true,
-  },
+  // Remove incorrect server options
   build: {
     rollupOptions: {
       output: {
