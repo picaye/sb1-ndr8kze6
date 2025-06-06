@@ -14,13 +14,10 @@ import {
   FederalTaxBracket,
   ScraperStatusType,
   Canton,
-} from './types';
-import { BaseCollector, CollectionResult, CollectionError } from './collectors/base-collector';
-import { ZurichCollector } from './collectors/zurich-collector';
-import { GenevaCollector } from './collectors/geneva-collector';
-// Import other canton collectors as they are created
-// import { BernCollector } from './collectors/bern-collector';
-// import { VaudCollector } from './collectors/vaud-collector';
+  Municipality, // Added for processing FSO data
+} from '../types';
+import { BaseCollector, CollectionResult } from './collectors/base-collector';
+import { CollectorFactory, PREDEFINED_DATA_SOURCES, CANTON_CODES_FOR_POPULATION } from './collector-factory'; // Updated import
 
 const DEFAULT_RETRY_ATTEMPTS = 3;
 const RETRY_DELAY_MS = 60 * 1000; // 1 minute
@@ -32,9 +29,9 @@ export interface OrchestrationReport {
   endTime: string;
   durationMs: number;
   status: 'SUCCESS' | 'PARTIAL_SUCCESS' | 'FAILURE' | 'SKIPPED';
-  itemsCollected: number; // Number of raw items/documents fetched
-  itemsParsed: number;    // Number of structured records parsed from raw data
-  itemsImported: number;  // Number of records successfully saved to final tables
+  itemsCollected: number; // Number of raw items/documents fetched by collector
+  itemsParsed: number;    // Number of structured records parsed from raw data by collector
+  itemsImported: number;  // Number of records successfully saved to final tables by orchestrator
   error?: string;
   errorDetails?: any;
   log: string[];
@@ -56,28 +53,31 @@ export class TaxDataOrchestrator {
   private schedulerIntervalId?: NodeJS.Timeout;
 
   constructor() {
-    // Initialize with dbManager already available
     console.log('TaxDataOrchestrator initialized.');
   }
 
   /**
-   * Loads data source configurations from the database or a config file.
-   * For this example, we'll use a predefined list and insert/update them.
+   * Loads data source configurations from CollectorFactory and populates/updates them in the database.
+   * Then initializes collector instances.
    */
-  public async initializeDataSources(predefinedSources: DataSource[]): Promise<void> {
-    console.log('Initializing data sources...');
+  public async initializeDataSourcesAndCollectors(): Promise<void> {
+    console.log('Initializing data sources from CollectorFactory...');
+    const predefinedSources = CollectorFactory.getAllDataSources();
+    
     const client = await dbManager.connect();
     try {
       await dbManager.beginTransaction(client);
       for (const ds of predefinedSources) {
-        await dbManager.insertDataSource(ds, client);
+        // Ensure data_format is an array of strings for PostgreSQL array type
+        const formattedDs = { ...ds, data_format: Array.isArray(ds.data_format) ? ds.data_format : [ds.data_format] };
+        await dbManager.insertDataSource(formattedDs, client);
       }
       await dbManager.commitTransaction(client);
       
       const { rows } = await dbManager.query<DataSource>('SELECT * FROM data_sources');
       this.dataSources = rows;
-      console.log(`Loaded ${this.dataSources.length} data sources.`);
-      this.initializeCollectors();
+      console.log(`Loaded and synchronized ${this.dataSources.length} data sources with database.`);
+      this.initializeCollectorsInternal();
     } catch (error) {
       console.error('Failed to initialize data sources:', error);
       await dbManager.rollbackTransaction(client);
@@ -88,46 +88,58 @@ export class TaxDataOrchestrator {
   }
 
   /**
-   * Creates collector instances based on loaded data sources.
+   * Creates collector instances based on loaded data sources using CollectorFactory.
    */
-  private initializeCollectors(): void {
+  private initializeCollectorsInternal(): void {
     this.collectors.clear();
     for (const ds of this.dataSources) {
-      const collector = this.createCollectorForDataSource(ds);
+      const collector = CollectorFactory.createCollector(ds);
       if (collector) {
         this.collectors.set(ds.source_id, collector);
       } else {
-        console.warn(`No collector available for data source type/ID: ${ds.type} / ${ds.source_id}`);
+        console.warn(`No collector available for data source ID: ${ds.source_id} (Type: ${ds.type})`);
       }
     }
     console.log(`Initialized ${this.collectors.size} collectors.`);
   }
-
+  
   /**
-   * Factory method to create collector instances.
+   * Populates core reference data like Cantons.
+   * This should be run once during setup or if canton data changes.
    */
-  private createCollectorForDataSource(dataSource: DataSource): BaseCollector | null {
-    // Logic to determine collector type based on dataSource properties
-    // For example, based on canton_id embedded in source_id or a dedicated field
-    if (dataSource.source_id.includes('canton_zh')) {
-      return new ZurichCollector(dataSource);
+  public async populateCoreReferenceData(): Promise<void> {
+    console.log('Populating core reference data (Cantons)...');
+    const cantonsData: Canton[] = CANTON_CODES_FOR_POPULATION.map(c => ({
+        canton_id: c.code,
+        name_de: c.name_de,
+        name_fr: c.name_fr,
+        name_it: c.name_it,
+        name_en: c.name_en, // Assuming English name is same as German for simplicity, adjust if needed
+        official_website_tax_info: PREDEFINED_DATA_SOURCES.find(ds => ds.source_id.startsWith(`canton_${c.code.toLowerCase()}_`))?.url || null,
+        tax_system_type: 'MultiplierOfCantonalBase', // Default, needs to be accurate per canton
+        last_checked_for_update: new Date().toISOString(),
+    }));
+    
+    const client = await dbManager.connect();
+    try {
+      await dbManager.beginTransaction(client);
+      for (const canton of cantonsData) {
+         // Adjust tax_system_type based on actual canton data if available
+        if (canton.canton_id === 'BS') canton.tax_system_type = 'UnifiedCantonalTax';
+        // Add other specific canton tax system types here
+        await dbManager.insertCanton(canton, client);
+      }
+      await dbManager.commitTransaction(client);
+      console.log(`Successfully populated/updated ${cantonsData.length} cantons.`);
+    } catch (error) {
+      await dbManager.rollbackTransaction(client);
+      console.error('Error populating cantons:', error);
+      throw error;
+    } finally {
+      client.release();
     }
-    if (dataSource.source_id.includes('canton_ge')) {
-      return new GenevaCollector(dataSource);
-    }
-    // Add cases for BernCollector, VaudCollector, etc.
-    // if (dataSource.source_id.includes('canton_be')) {
-    //   return new BernCollector(dataSource);
-    // }
-    // if (dataSource.source_id.includes('federal_estv_brackets')) {
-    //   return new FederalBracketCollector(dataSource);
-    // }
-    // if (dataSource.source_id.includes('federal_fso_municipalities')) {
-    //   return new FSOMunicipalityListCollector(dataSource);
-    // }
-    console.warn(`No specific collector found for source_id: ${dataSource.source_id}. Using generic or skipping.`);
-    return null; // Or a generic collector if applicable
   }
+
 
   /**
    * Runs a specific data collector by its source ID.
@@ -172,40 +184,26 @@ export class TaxDataOrchestrator {
     try {
       const collectionResult: CollectionResult = await collector.collect();
       log.push(`[INFO] Collector Result Status: ${collectionResult.status}`);
-      log.push(`[INFO] Items Collected (raw docs/calls): ${collectionResult.items_collected}`);
-      log.push(`[INFO] Items Parsed from Source: ${collectionResult.items_parsed_successfully}`);
+      log.push(`[INFO] Items Collected (raw docs/calls by collector): ${collectionResult.items_collected}`);
+      log.push(`[INFO] Items Parsed from Source (by collector): ${collectionResult.items_parsed_successfully}`);
       collectionResult.errors.forEach(e => log.push(`[COLLECTOR_ERROR] ${e.type}: ${e.message}`));
 
       if (collectionResult.status === 'failure' && collectionResult.errors.some(e => e.type === 'rate_limit')) {
-         // Handle rate limit specifically, maybe schedule a later retry without counting against general retries.
          log.push(`[WARN] Rate limit hit for ${dataSource.name}. Will retry later.`);
-         // Update data source status to reflect rate limit issue
-         await this.updateDataSourceScrapeStatus(dataSource.source_id, 'needs_update', collectionResult.last_scrape_attempt, null, 'Rate limited');
+         await this.updateDataSourceScrapeStatus(dataSource.source_id, 'needs_update', collectionResult.last_scrape_attempt || startTime.toISOString(), null, 'Rate limited');
          return createReport('SKIPPED', collectionResult.items_collected, collectionResult.items_parsed_successfully, 0, 'Rate limited');
       }
       
       if (collectionResult.status === 'failure') {
         throw new Error(collectionResult.errors[0]?.message || 'Collector returned failure status.');
       }
-
-      // Process and import the data
-      // The `data_preview` in CollectionResult contains an array of ScrapedDataItem-like objects
-      // or the actual parsed data items depending on the collector's implementation.
-      // For ZurichCollector, mapToScrapedDataItems returns ScrapedDataItem[]
-      // and this is what should be in collectionResult.data_preview (or a dedicated field)
       
-      let itemsToProcess: ScrapedDataItem[] = [];
-      if (collectionResult.data_preview && Array.isArray(collectionResult.data_preview)) {
-         // Assuming data_preview contains ScrapedDataItem objects or their JSON strings
-         itemsToProcess = collectionResult.data_preview.map(item => 
-            typeof item === 'string' ? JSON.parse(item) : item
-         ).filter(item => item && item.parsed_data_preview_json); // Ensure it has the data
-      } else if ((collector as any).lastScrapedItems) { // Fallback if collectors store items internally
-         itemsToProcess = (collector as any).lastScrapedItems;
-      }
+      // The data_preview from CollectionResult should contain ScrapedDataItem[]
+      const scrapedItemsToProcess: ScrapedDataItem[] = (collectionResult.data_preview || [])
+        .map(item => (typeof item === 'string' ? JSON.parse(item) : item))
+        .filter(item => item && item.parsed_data_preview_json) as ScrapedDataItem[];
 
-
-      const importStats = await this.processAndImportData(itemsToProcess, dataSource);
+      const importStats = await this.processAndImportData(scrapedItemsToProcess, dataSource);
       log.push(`[INFO] Items imported to DB: ${importStats.importedCount}`);
       log.push(`[INFO] Items failed to import: ${importStats.failedCount}`);
       
@@ -213,9 +211,9 @@ export class TaxDataOrchestrator {
 
       return createReport(
         collectionResult.status === 'success' && importStats.failedCount === 0 ? 'SUCCESS' : 'PARTIAL_SUCCESS',
-        collectionResult.items_collected,
-        collectionResult.items_parsed_successfully,
-        importStats.importedCount,
+        collectionResult.items_collected, // This is items from collector's perspective (e.g. standardized items it produced)
+        collectionResult.items_parsed_successfully, // This is raw items it parsed
+        importStats.importedCount, // Items successfully inserted into DB by orchestrator
         importStats.failedCount > 0 ? `${importStats.failedCount} items failed to import.` : undefined
       );
 
@@ -230,13 +228,13 @@ export class TaxDataOrchestrator {
         return this.runCollector(sourceId, attempt + 1);
       } else {
         log.push(`[ERROR] Max retries reached for ${dataSource.name}.`);
-        return createReport('FAILURE', 0, 0, 0, `Max retries reached. Last error: ${error.message}`, error);
+        return createReport('FAILURE', 0,0,0, `Max retries reached. Last error: ${error.message}`, error);
       }
     }
   }
 
   /**
-   * Processes ScrapedDataItems and imports them into the final database tables.
+   * Processes ScrapedDataItems and imports them into the final database tables based on source type.
    */
   private async processAndImportData(
     scrapedItems: ScrapedDataItem[],
@@ -255,24 +253,56 @@ export class TaxDataOrchestrator {
           continue;
         }
         try {
-          // Assuming parsed_data_preview_json contains a single MunicipalTaxRate object as a string
-          const taxRateData = JSON.parse(item.parsed_data_preview_json) as MunicipalTaxRate;
-          
-          // Further validation/transformation if needed before inserting
-          // Example: Ensure BFS_NR exists in municipalities table, canton_id matches dataSource
-          const { rows: muniExists } = await client.query('SELECT 1 FROM municipalities WHERE bfs_nr = $1 AND canton_id = $2', [taxRateData.municipality_bfs_nr, dataSource.source_id.split('_')[1].toUpperCase()]);
-          if (muniExists.length === 0) {
-            console.warn(`Municipality BFS ${taxRateData.municipality_bfs_nr} for canton ${dataSource.source_id.split('_')[1].toUpperCase()} not found. Skipping rate import.`);
+          const parsedData = JSON.parse(item.parsed_data_preview_json);
+
+          if (dataSource.source_id.startsWith('canton_') && dataSource.source_id.endsWith('_municipal_tax_rates')) {
+            const taxRateData = parsedData as MunicipalTaxRate;
+             // Ensure related canton and municipality exist
+            const { rows: cantonExists } = await client.query('SELECT 1 FROM cantons WHERE canton_id = $1', [dataSource.source_id.split('_')[1].toUpperCase()]);
+            if (cantonExists.length === 0) {
+                console.warn(`Canton ${dataSource.source_id.split('_')[1].toUpperCase()} not found for tax rate of municipality BFS ${taxRateData.municipality_bfs_nr}. Skipping.`);
+                failedCount++;
+                continue;
+            }
+            const { rows: muniExists } = await client.query('SELECT 1 FROM municipalities WHERE bfs_nr = $1', [taxRateData.municipality_bfs_nr]);
+            if (muniExists.length === 0) {
+              console.warn(`Municipality BFS ${taxRateData.municipality_bfs_nr} not found for tax rate import. Skipping. (Source: ${dataSource.name})`);
+              failedCount++;
+              continue;
+            }
+            await dbManager.insertMunicipalTaxRate(taxRateData, client);
+          } else if (dataSource.source_id === 'federal_fso_municipalities') {
+            const municipalityData = parsedData as Municipality;
+            // Ensure related canton exists
+            const { rows: cantonExists } = await client.query('SELECT 1 FROM cantons WHERE canton_id = $1', [municipalityData.canton_id]);
+             if (cantonExists.length === 0) {
+                console.warn(`Canton ${municipalityData.canton_id} not found for municipality BFS ${municipalityData.bfs_nr}. Skipping.`);
+                failedCount++;
+                continue;
+            }
+            await dbManager.insertMunicipality(municipalityData, client);
+          } else if (dataSource.source_id === 'federal_estv_tax_brackets') {
+            const bracketData = parsedData as FederalTaxBracket;
+            await dbManager.insertFederalTaxBracket(bracketData, client);
+          } else if (dataSource.source_id.startsWith('canton_') && dataSource.source_id.endsWith('_parameters')) {
+            const paramData = parsedData as CantonalTaxParameter;
+             // Ensure related canton exists
+            const { rows: cantonExists } = await client.query('SELECT 1 FROM cantons WHERE canton_id = $1', [paramData.canton_id]);
+             if (cantonExists.length === 0) {
+                console.warn(`Canton ${paramData.canton_id} not found for cantonal parameter ${paramData.parameter_name}. Skipping.`);
+                failedCount++;
+                continue;
+            }
+            await dbManager.insertCantonalTaxParameter(paramData, client);
+          } else {
+            console.warn(`Unknown data type for source ID ${dataSource.source_id}. Cannot import.`);
             failedCount++;
             continue;
           }
-          
-          await dbManager.insertMunicipalTaxRate(taxRateData, client);
           importedCount++;
         } catch (parseOrDbError: any) {
-          console.error(`Failed to import item ${item.item_id}: ${parseOrDbError.message}`, item);
+          console.error(`Failed to import item ${item.item_id} from source ${dataSource.source_id}: ${parseOrDbError.message}`, item.parsed_data_preview_json);
           failedCount++;
-          // Optionally log this specific item failure to a separate table/log
         }
       }
 
@@ -280,8 +310,7 @@ export class TaxDataOrchestrator {
     } catch (error: any) {
       console.error(`Transaction failed during data import for source ${dataSource.source_id}: ${error.message}`);
       await dbManager.rollbackTransaction(client);
-      // Mark all items intended for this batch as failed if the transaction rolls back
-      failedCount += importedCount; // Items that were part of the transaction but not committed
+      failedCount += importedCount; 
       importedCount = 0; 
     } finally {
       client.release();
@@ -289,9 +318,6 @@ export class TaxDataOrchestrator {
     return { importedCount, failedCount };
   }
   
-  /**
-   * Updates the data source status in the database.
-   */
   private async updateDataSourceScrapeStatus(
     sourceId: string,
     status: ScraperStatusType,
@@ -307,8 +333,10 @@ export class TaxDataOrchestrator {
         currentSource.scraper_status = status;
         currentSource.last_scrape_attempt = lastAttempt;
         currentSource.last_scrape_success = lastSuccess;
-        if (notes) currentSource.notes = notes.substring(0, 250); // Truncate notes if too long
-        await dbManager.insertDataSource(currentSource, client); // This will UPSERT
+        if (notes) currentSource.notes = notes.substring(0, 250);
+        // Ensure data_format is an array of strings for PostgreSQL array type
+        const formattedDs = { ...currentSource, data_format: Array.isArray(currentSource.data_format) ? currentSource.data_format : [currentSource.data_format] };
+        await dbManager.insertDataSource(formattedDs, client);
       }
       await dbManager.commitTransaction(client);
     } catch (error) {
@@ -319,30 +347,44 @@ export class TaxDataOrchestrator {
     }
   }
 
-  /**
-   * Runs all registered collectors.
-   */
   public async runAllCollectors(sequential: boolean = true): Promise<OrchestrationReport[]> {
     console.log(`Starting run for all ${this.collectors.size} collectors. Sequential: ${sequential}`);
     const reports: OrchestrationReport[] = [];
-    const sourceIds = Array.from(this.collectors.keys());
+    
+    // Define preferred order: FSO first, then federal, then cantonal
+    const orderedSourceIds: string[] = [];
+    const fsoSource = this.dataSources.find(ds => ds.source_id === 'federal_fso_municipalities');
+    if (fsoSource) orderedSourceIds.push(fsoSource.source_id);
+
+    const federalBracketSource = this.dataSources.find(ds => ds.source_id === 'federal_estv_tax_brackets');
+    if (federalBracketSource) orderedSourceIds.push(federalBracketSource.source_id);
+    
+    this.dataSources.forEach(ds => {
+        if (!orderedSourceIds.includes(ds.source_id)) {
+            orderedSourceIds.push(ds.source_id);
+        }
+    });
+
 
     if (sequential) {
-      for (const sourceId of sourceIds) {
-        const report = await this.runCollector(sourceId);
-        reports.push(report);
+      for (const sourceId of orderedSourceIds) {
+        if (this.collectors.has(sourceId)) { // Only run if a collector exists
+            const report = await this.runCollector(sourceId);
+            reports.push(report);
+        } else {
+            console.warn(`Skipping source ID ${sourceId} as no collector is registered for it.`);
+        }
       }
     } else {
-      // Parallel execution (use with caution for external sources)
-      const promises = sourceIds.map(sourceId => this.runCollector(sourceId));
+      const promises = orderedSourceIds
+        .filter(sourceId => this.collectors.has(sourceId))
+        .map(sourceId => this.runCollector(sourceId));
       const results = await Promise.allSettled(promises);
       results.forEach(result => {
         if (result.status === 'fulfilled') {
           reports.push(result.value);
         } else {
-          // Handle rejected promises if runCollector itself could throw before returning a report
           console.error('A collector run failed unexpectedly in parallel execution:', result.reason);
-          // Construct a basic failure report if needed
         }
       });
     }
@@ -350,11 +392,7 @@ export class TaxDataOrchestrator {
     return reports;
   }
 
-  /**
-   * Starts a simple scheduler for automated runs.
-   * In production, a more robust scheduler like node-cron or an external service (Airflow, AWS Step Functions) would be used.
-   */
-  public startScheduler(intervalMinutes: number = 60 * 24): void { // Default: run once a day
+  public startScheduler(intervalMinutes: number = 60 * 24): void {
     if (this.schedulerIntervalId) {
       console.log('Scheduler already running.');
       return;
@@ -362,11 +400,12 @@ export class TaxDataOrchestrator {
     console.log(`Starting scheduler to run all collectors every ${intervalMinutes} minutes.`);
     this.schedulerIntervalId = setInterval(async () => {
       console.log(`[Scheduler] Triggering automated run for all collectors at ${new Date().toISOString()}`);
-      // Implement logic to check if a source is due for scraping based on scrape_frequency_days
-      // For now, just runs all.
+      await this.initializeDataSourcesAndCollectors(); // Refresh sources and collectors
+      await this.populateCoreReferenceData(); // Ensure cantons are up-to-date
       const reports = await this.runAllCollectors();
-      // Optionally, generate and store/send a status report after each scheduled run.
       console.log(`[Scheduler] Automated run completed. Reports generated: ${reports.length}`);
+      const statusReport = await this.generateOverallStatusReport(reports);
+      console.log(`[Scheduler] Overall Platform Status: ${statusReport.overallStatus}`);
     }, intervalMinutes * 60 * 1000);
   }
 
@@ -378,20 +417,16 @@ export class TaxDataOrchestrator {
     }
   }
 
-  /**
-   * Generates an overall status report of the data collection platform.
-   */
   public async generateOverallStatusReport(recentReports?: OrchestrationReport[]): Promise<OverallStatusReport> {
     const { rows: sourcesFromDb } = await dbManager.query<DataSource>('SELECT * FROM data_sources ORDER BY source_id');
-    this.dataSources = sourcesFromDb; // Refresh local cache
+    this.dataSources = sourcesFromDb; 
 
     let overallStatus: OverallStatusReport['overallStatus'] = 'HEALTHY';
     let successfulSources = 0;
     let failedSources = 0;
 
-    const dataSourceReports: OrchestrationReport[] = recentReports || []; // Use provided reports or fetch last status
+    const dataSourceReports: OrchestrationReport[] = recentReports || [];
     
-    // If no recent reports provided, create a basic status from DB for each source
     if (!recentReports) {
         for (const ds of this.dataSources) {
             dataSourceReports.push({
@@ -399,132 +434,38 @@ export class TaxDataOrchestrator {
                 sourceName: ds.name,
                 startTime: ds.last_scrape_attempt || new Date(0).toISOString(),
                 endTime: ds.last_scrape_success || new Date(0).toISOString(),
-                durationMs: 0, // Not available without a specific run
+                durationMs: 0, 
                 status: ds.scraper_status === 'active' && ds.last_scrape_success ? 'SUCCESS' : 
-                        ds.scraper_status === 'error' ? 'FAILURE' : 'SKIPPED', // Simplified status
+                        ds.scraper_status === 'error' ? 'FAILURE' : 'SKIPPED',
                 itemsCollected: 0, itemsParsed: 0, itemsImported: 0,
                 log: ds.notes ? [ds.notes] : [],
             });
         }
     }
 
-
     dataSourceReports.forEach(report => {
       if (report.status === 'FAILURE') {
         failedSources++;
         overallStatus = 'ERROR';
       } else if (report.status === 'PARTIAL_SUCCESS') {
-        successfulSources++; // Counted as success but might need attention
+        successfulSources++; 
         if (overallStatus !== 'ERROR') overallStatus = 'WARNING';
       } else if (report.status === 'SUCCESS') {
         successfulSources++;
       }
-      // SKIPPED sources do not change overall status from HEALTHY unless others are in error/warning
     });
     
     if (overallStatus === 'HEALTHY' && failedSources === 0 && dataSourceReports.some(r => r.status === 'SKIPPED')) {
-        // If some were skipped but no failures, it's a warning
         overallStatus = 'WARNING';
     }
-
 
     return {
       overallStatus,
       lastFullRunTime: dataSourceReports.length > 0 ? new Date(Math.max(...dataSourceReports.map(r => new Date(r.endTime).getTime()))).toISOString() : undefined,
-      // nextScheduledRunTime: // This would require more complex scheduling logic
       dataSourceReports,
       totalSources: this.dataSources.length,
       successfulSources,
       failedSources,
     };
   }
-  
-  // --- Methods for populating core reference data (Cantons, Federal Brackets) ---
-  
-  public async populateInitialCantons(cantonsData: Canton[]): Promise<void> {
-    const client = await dbManager.connect();
-    try {
-      await dbManager.beginTransaction(client);
-      for (const canton of cantonsData) {
-        await dbManager.insertCanton(canton, client);
-      }
-      await dbManager.commitTransaction(client);
-      console.log(`Successfully populated/updated ${cantonsData.length} cantons.`);
-    } catch (error) {
-      await dbManager.rollbackTransaction(client);
-      console.error('Error populating cantons:', error);
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-  
-  public async populateFederalTaxBrackets(bracketsData: FederalTaxBracket[]): Promise<void> {
-    const client = await dbManager.connect();
-    try {
-      await dbManager.beginTransaction(client);
-      for (const bracket of bracketsData) {
-        await dbManager.insertFederalTaxBracket(bracket, client);
-      }
-      await dbManager.commitTransaction(client);
-      console.log(`Successfully populated/updated ${bracketsData.length} federal tax brackets.`);
-    } catch (error) {
-      await dbManager.rollbackTransaction(client);
-      console.error('Error populating federal tax brackets:', error);
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
 }
-
-// Example of how the orchestrator might be used in a main script/service:
-/*
-async function mainPlatformRun() {
-  const orchestrator = new TaxDataOrchestrator();
-
-  // Define data sources (this would typically come from a config file or DB table itself)
-  const predefinedSources: DataSource[] = [
-    {
-      source_id: 'canton_zh_tax_rates_simulated',
-      name: 'Canton Zürich Municipal Tax Rates (Simulated)',
-      type: 'cantonal_admin', url: 'simulated://zurich/taxrates.json',
-      specific_document_url_pattern: null, data_format: ['json_api'],
-      scraper_status: 'active', last_scrape_attempt: null, last_scrape_success: null,
-      scrape_frequency_days: 1, notes: 'Simulated ZH source.',
-    },
-    {
-      source_id: 'canton_ge_tax_rates_simulated',
-      name: 'Canton Genève Municipal Tax Rates (Simulated)',
-      type: 'cantonal_admin', url: 'simulated://geneva/taxrates.json',
-      specific_document_url_pattern: null, data_format: ['json_api'],
-      scraper_status: 'active', last_scrape_attempt: null, last_scrape_success: null,
-      scrape_frequency_days: 1, notes: 'Simulated GE source.',
-    },
-    // ... add other data sources for FSO, ESTV, and other cantons
-  ];
-
-  await orchestrator.initializeDataSources(predefinedSources);
-
-  // Run all collectors
-  const reports = await orchestrator.runAllCollectors();
-  console.log("\\n--- Overall Orchestration Run Summary ---");
-  reports.forEach(report => {
-    console.log(`Source: ${report.sourceName}, Status: ${report.status}, Imported: ${report.itemsImported}, Duration: ${report.durationMs}ms`);
-    if (report.error) console.error(`  Error: ${report.error}`);
-  });
-
-  const statusReport = await orchestrator.generateOverallStatusReport(reports);
-  console.log("\\n--- Platform Status Report ---");
-  console.log(`Overall Status: ${statusReport.overallStatus}`);
-  console.log(`Successful Sources: ${statusReport.successfulSources}/${statusReport.totalSources}`);
-  
-  // Start scheduler for continuous operation (in a long-running service)
-  // orchestrator.startScheduler(60 * 24); // Run daily
-  
-  // Ensure to close DB pool when application exits
-  // process.on('exit', () => dbManager.close());
-}
-
-// mainPlatformRun().catch(console.error);
-*/

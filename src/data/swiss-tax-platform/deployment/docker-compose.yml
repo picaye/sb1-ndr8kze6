@@ -1,0 +1,135 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: tax_platform_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-taxadmin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-swiss_tax_platform}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Optional: Mount an init script to create schema on first run
+      # - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+      # - ../database/schema.sql:/docker-entrypoint-initdb.d/001_schema.sql # Mount schema directly
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    networks:
+      - tax_platform_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-taxadmin} -d ${POSTGRES_DB:-swiss_tax_platform}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: tax_platform_redis
+    restart: always
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - tax_platform_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    # Assuming Dockerfile is in the project root, 4 levels up from this deployment directory
+    build: 
+      context: ../../../.. 
+      dockerfile: Dockerfile # Assuming a Dockerfile exists in the project root
+    container_name: tax_platform_app
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-taxadmin}:${POSTGRES_PASSWORD:-changeme}@db:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-swiss_tax_platform}
+      REDIS_URL: redis://redis:${REDIS_PORT:-6379}
+      APP_PORT: ${APP_PORT:-3000}
+      # Add other necessary environment variables for the app
+      # For example, API keys for external services, JWT secrets, encryption keys
+      # ENCRYPTION_SECRET: ${ENCRYPTION_SECRET:-your_strong_encryption_secret}
+      # JWT_SECRET: ${JWT_SECRET:-your_strong_jwt_secret}
+      # LOG_LEVEL: info
+    ports:
+      - "${APP_PORT:-3000}:${APP_PORT:-3000}"
+    networks:
+      - tax_platform_net
+    # Add healthcheck for the app if it exposes a health endpoint
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:${APP_PORT:-3000}/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 30s # Give app time to start
+    # Add volumes for logs or other persistent app data if needed
+    # volumes:
+    #   - app_logs:/app/logs
+
+  prometheus:
+    image: prom/prometheus:v2.47.0 # Using a specific version for stability
+    container_name: tax_platform_prometheus
+    restart: always
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle' # Allows reloading config via HTTP POST
+    ports:
+      - "9090:9090"
+    networks:
+      - tax_platform_net
+    depends_on:
+      - app # Prometheus might scrape the app service
+
+  grafana:
+    image: grafana/grafana-oss:10.1.1 # Using a specific version for stability
+    container_name: tax_platform_grafana
+    restart: always
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./monitoring/grafana-dashboards-provider.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./monitoring/dashboards:/var/lib/grafana/dashboards # Mount a local dashboards folder
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-changeme}
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+    ports:
+      - "3001:3000" # Grafana default port is 3000, mapping to 3001 on host
+    networks:
+      - tax_platform_net
+    depends_on:
+      - prometheus
+
+networks:
+  tax_platform_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  # app_logs: # If app service uses a log volume
+  #   driver: local
