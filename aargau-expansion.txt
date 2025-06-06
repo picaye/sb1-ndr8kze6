@@ -1,0 +1,24 @@
+AARGAU EXPANSION PLAN
+====================
+
+Current: 16 municipalities
+Target: 80+ municipalities
+Increase: 400%+ expansion
+
+Key Aargau municipalities to add:
+- Abtwil, Arni (AG), Beinwil (Freiamt), Bergdietikon
+- Birmenstorf (AG), Boniswil, Boswil, Bottenwil
+- Bremgarten (AG), Brunegg, Buchs (AG), Bünzen
+- Burg (AG), Büttikon, Dintikon, Dottikon
+- Egliswil, Ehrendingen, Eiken, Endingen
+- Ennetbaden, Erlinsbach (AG), Fahrwangen, Fislisbach
+- Freienwil, Gebenstorf, Gränichen, Hallwil
+- Hendschiken, Holderbank (AG), Holziken, Jonen
+- Killwangen, Küttigen, Laufenburg, Lupfig
+- Mägenwil, Meisterschwanden, Mellingen, Menziken
+- Merenschwand, Muhen, Muri (AG), Niederlenz
+- Niederrohrdorf, Oberentfelden, Oberrohrdorf, Oberwil-Lieli
+- And 30+ more municipalities for comprehensive coverage!
+
+Tax Multiplier Range: 0.75 (wealthy areas) to 1.25 (higher tax areas)
+BFS Numbers: Include where available for accuracy
