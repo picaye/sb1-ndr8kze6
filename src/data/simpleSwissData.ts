@@ -338,3 +338,4 @@ export function getSimpleMunicipalityTaxMultiplier(
   }
   console.warn(`Tax multiplier not found for ${municipalityName}, ${cantonName}, ${year}. Defaulting to 1.0.`);
   return 1.0;
+}
