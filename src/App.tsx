@@ -2,8 +2,7 @@ import React, { Suspense, useEffect, Component, ErrorInfo, ReactNode } from 'rea
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from './stores/authStore';
-import { logSecurityEvent, sanitizeError, SECURITY_CONSTANTS } from './utils/security/validation';
-import { generateSecurityHeaders, warnIfInsecure, buildCSP, CSPConfig } from './utils/security/encryption';
+// Security-related imports removed for simplification
 
 // Layouts
 import { Header } from './components/Header';
@@ -16,75 +15,60 @@ import { TaxOptimizationResults } from './components/TaxOptimizationResults';
 import { LoginForm } from './components/auth/LoginForm';
 import { ForgotPasswordForm } from './components/auth/ForgotPasswordForm';
 import { AdminDashboard } from './components/admin/AdminDashboard';
-// import AffiliateManagement from './components/admin/affiliates/AffiliateManagement'; // Removed
+// AffiliateManagement import removed
 import { AdminSettings } from './components/admin/AdminSettings';
 import { AdminUserList } from './components/admin/AdminUserList';
-// import { AboutPage as AboutPageComponent } from './components/AboutPage'; // Removed
-// import { ContactPage as ContactPageComponent } from './components/ContactPage'; // Removed
 
 
-interface ErrorBoundaryProps {
-  children: ReactNode;
-}
-
-interface ErrorBoundaryState {
-  hasError: boolean;
-  errorId?: string;
-}
-
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
+// Simplified ErrorBoundary for basic error catching
+class SimpleErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean; error?: Error | null; errorInfo?: ErrorInfo | null }
+> {
+  constructor(props: { children: ReactNode }) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, error: null, errorInfo: null };
   }
 
-  static getDerivedStateFromError(_: Error): ErrorBoundaryState {
-    return { hasError: true };
+  static getDerivedStateFromError(error: Error): { hasError: boolean; error: Error } {
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    logSecurityEvent({
-      level: SECURITY_CONSTANTS.LOG_LEVELS.ERROR,
-      message: 'Unhandled application error caught by ErrorBoundary',
-      data: {
-        error: error.message,
-        componentStack: errorInfo.componentStack,
-      },
-    });
-    this.setState({ errorId: undefined });
-    console.error("Uncaught error:", error, errorInfo);
+    console.error("SimpleErrorBoundary caught an error:", error, errorInfo);
+    this.setState({ error, errorInfo });
   }
 
   render() {
     if (this.state.hasError) {
-      const sanitizedMessage = sanitizeError(new Error('An unexpected error occurred.'));
       return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Application Error</h1>
-          <p className="text-gray-700 mb-2">{sanitizedMessage}</p>
-          {this.state.errorId && <p className="text-sm text-gray-500">Error ID: {this.state.errorId}</p>}
+        <div className="text-center p-8">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Something went wrong.</h1>
+          <p className="text-gray-700 mb-2">We've logged the error and are looking into it.</p>
           <p className="text-gray-600 mt-4">
-            Please try refreshing the page or contact support if the problem persists.
+            Please try refreshing the page. If the problem persists, please try again later.
           </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Refresh Page
-          </button>
+          {process.env.NODE_ENV === 'development' && this.state.error && (
+            <details className="mt-4 text-left bg-gray-100 p-4 rounded">
+              <summary className="cursor-pointer font-semibold">Error Details (Dev Mode)</summary>
+              <pre className="mt-2 text-sm whitespace-pre-wrap">
+                {this.state.error.toString()}
+                {this.state.errorInfo?.componentStack}
+              </pre>
+            </details>
+          )}
         </div>
       );
     }
-
     return this.props.children;
   }
 }
+
 
 // Simple inline components for routes
 const CalculatorFormsPage = () => (
   <div className="space-y-8">
     <PersonalInfoForm />
-    {/* Navigation to FinancialInfoForm is handled within PersonalInfoForm */}
   </div>
 );
 
@@ -99,7 +83,6 @@ const ResultsPage = () => <TaxOptimizationResults />;
 const LoginPageComponent = () => <LoginForm />;
 const ForgotPasswordPageComponent = () => <ForgotPasswordForm />;
 const AdminDashboardPageComponent = () => <AdminDashboard />;
-// const AdminAffiliatesPageComponent = () => <AffiliateManagement />; // Replaced with placeholder
 const AdminAffiliatesPlaceholderPage = () => (
   <div>
     <h1 className="text-xl font-bold">Affiliate Management</h1>
@@ -120,7 +103,6 @@ const ContactPlaceholderPage = () => (
   <div>
     <h1 className="text-xl font-bold">Contact Us</h1>
     <p>Contact information will be available here.</p>
-    {/* Consider adding a simple ContactForm component here if it exists and is stable */}
   </div>
 );
 
@@ -145,47 +127,13 @@ function App() {
   useEffect(() => {
     const savedLanguage = localStorage.getItem('i18nextLng') || 'en';
     i18n.changeLanguage(savedLanguage);
-
-    logSecurityEvent({
-      level: SECURITY_CONSTANTS.LOG_LEVELS.INFO,
-      message: 'Application started',
-      data: { userAgent: navigator.userAgent, language: savedLanguage }
-    });
-
-    warnIfInsecure();
-
-    const cspConfig: CSPConfig = {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      frameSrc: ["'none'"],
-      upgradeInsecureRequests: true,
-    };
-    const headers = generateSecurityHeaders({ enableCSP: true, reportOnly: false });
-
-    let cspMetaTag = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
-    if (!cspMetaTag) {
-      cspMetaTag = document.createElement('meta');
-      cspMetaTag.setAttribute('http-equiv', 'Content-Security-Policy');
-      document.head.appendChild(cspMetaTag);
-    }
-    cspMetaTag.setAttribute('content', buildCSP(cspConfig));
-
-    logSecurityEvent({
-      level: SECURITY_CONSTANTS.LOG_LEVELS.INFO,
-      message: 'Conceptual security headers and CSP meta tag applied.',
-      data: { headers: Object.keys(headers), csp: cspMetaTag.getAttribute('content') }
-    });
-
+    console.log("App initialized, language set to:", savedLanguage);
+    // Security-related useEffect logic removed
   }, [i18n]);
 
   return (
     <Router>
-      <ErrorBoundary>
+      <SimpleErrorBoundary>
         <div className="flex flex-col min-h-screen bg-gray-50">
           <Header />
           <main className="flex-grow container mx-auto px-4 py-8">
@@ -265,7 +213,7 @@ function App() {
             © {new Date().getFullYear()} {t('appName', {defaultValue: 'Swiss Tax Calculator AI'})}. {t('footer.allRightsReserved', {defaultValue: 'All rights reserved.'})}
           </footer>
         </div>
-      </ErrorBoundary>
+      </SimpleErrorBoundary>
     </Router>
   );
 }

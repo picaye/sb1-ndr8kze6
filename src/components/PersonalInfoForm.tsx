@@ -3,39 +3,37 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useTaxPlanningStore } from '../stores/taxPlanningStore';
 import { SaveDataPrompt } from './SaveDataPrompt';
-import { cantons, getMunicipalitiesForCanton } from '../utils/swissData'; // Added getMunicipalitiesForCanton for debugging
-import { MunicipalityCombobox } from './MunicipalityCombobox'; // Changed from MunicipalitySelect
+import { simpleSwissCantons, getSimpleMunicipalitiesForCanton } from '../data/simpleSwissData';
 
 export function PersonalInfoForm() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [isMunicipalityValid, setIsMunicipalityValid] = useState(false);
   
   const personalInfo = useTaxPlanningStore((state) => state.personalInfo);
   const setPersonalInfo = useTaxPlanningStore((state) => state.setPersonalInfo);
 
+  const [municipalities, setMunicipalities] = useState<string[]>([]);
+
   const isPartnershipOrMarried = personalInfo?.maritalStatus === 'married' || 
                                 personalInfo?.maritalStatus === 'registered_partnership';
 
-  // Debugging: Log when canton changes and what municipalities are found
   useEffect(() => {
     if (personalInfo?.canton) {
-      console.log('[PersonalInfoForm EFFECT] Canton changed to:', personalInfo.canton);
-      const municipalitiesForCanton = getMunicipalitiesForCanton(personalInfo.canton);
-      console.log('[PersonalInfoForm EFFECT] Municipalities found for ' + personalInfo.canton + ':', municipalitiesForCanton.length, municipalitiesForCanton.slice(0, 5));
+      setMunicipalities(getSimpleMunicipalitiesForCanton(personalInfo.canton));
+    } else {
+      setMunicipalities([]);
     }
   }, [personalInfo?.canton]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     if (name === 'canton') {
-      console.log('[PersonalInfoForm HANDLER] Canton changed to:', value);
       setPersonalInfo({
         ...personalInfo!,
         [name]: value,
         municipality: '' // Reset municipality when canton changes
       });
-      setIsMunicipalityValid(false); // Municipality needs to be re-validated
+      setMunicipalities(getSimpleMunicipalitiesForCanton(value));
     } else {
       const newValue = type === 'number' ? (value === '' ? '' : Number(value)) : 
                        type === 'checkbox' ? (e.target as HTMLInputElement).checked : 
@@ -54,7 +52,6 @@ export function PersonalInfoForm() {
     setPersonalInfo({
       ...personalInfo!,
       spouse: {
-        // Ensure spouse object exists, providing default values if not
         age: personalInfo?.spouse?.age || '',
         religion: personalInfo?.spouse?.religion || 'none',
         ...personalInfo!.spouse,
@@ -64,14 +61,8 @@ export function PersonalInfoForm() {
   };
 
   const handleNext = () => {
-    if (!isMunicipalityValid && personalInfo?.municipality) { // Allow next if municipality is selected and valid
-        console.warn('[PersonalInfoForm] Attempting to proceed with invalid municipality selection.');
-        // Optionally, trigger validation again or show a more prominent error
-        return;
-    }
     if (!personalInfo?.municipality) {
-        console.warn('[PersonalInfoForm] Municipality not selected.');
-        // Optionally, set an error state to highlight the municipality field
+        // Optionally, set an error state to highlight the municipality field or show a toast
         return;
     }
     navigate('/financial-info');
@@ -148,7 +139,7 @@ export function PersonalInfoForm() {
               <input
                 id="spouseAge"
                 type="number"
-                name="age" // This should be distinct if spouse is a nested object property, e.g., "spouse.age" or handled by handlePartnerChange
+                name="age" 
                 value={personalInfo.spouse?.age || ''}
                 onChange={handlePartnerChange}
                 min="0"
@@ -160,7 +151,7 @@ export function PersonalInfoForm() {
               <label htmlFor="spouseReligion" className="block text-sm font-medium text-gray-700">{t('forms.personalInfo.person2.religion.label')}</label>
               <select
                 id="spouseReligion"
-                name="religion" // Similar to age, ensure this targets spouse.religion
+                name="religion" 
                 value={personalInfo.spouse?.religion || 'none'}
                 onChange={handlePartnerChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -186,30 +177,33 @@ export function PersonalInfoForm() {
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           >
-            {cantons.map(canton => (
+            <option value="">{t('forms.personalInfo.selectCanton', { defaultValue: 'Select Canton' })}</option>
+            {simpleSwissCantons.map(canton => (
               <option key={canton} value={canton}>{canton}</option>
-            ))}\
+            ))}
           </select>
         </div>
 
         <div>
           <label htmlFor="municipality" className="block text-sm font-medium text-gray-700">{t('forms.personalInfo.municipality')}</label>
-          <MunicipalityCombobox
-            canton={personalInfo.canton}
+          <select
+            id="municipality"
+            name="municipality"
             value={personalInfo.municipality || ''}
-            onChange={(value) => {
-              console.log('[PersonalInfoForm] MunicipalityCombobox new value:', value);
-              setPersonalInfo(prev => ({
-                ...prev!,
-                municipality: value
-              }));
-              // Validity will be set by onValidationChange
-            }}
-            onValidationChange={(isValid) => {
-                console.log('[PersonalInfoForm] MunicipalityCombobox validation changed to:', isValid);
-                setIsMunicipalityValid(isValid);
-            }}
-          />
+            onChange={handleChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            disabled={!personalInfo.canton || municipalities.length === 0}
+          >
+            <option value="">{t('forms.personalInfo.selectMunicipality')}</option>
+            {municipalities.map(municipality => (
+              <option key={municipality} value={municipality}>{municipality}</option>
+            ))}
+          </select>
+          {!personalInfo.municipality && personalInfo.canton && municipalities.length > 0 && (
+             <p className="mt-1 text-sm text-red-600">
+               {t('validation.municipality.required')}
+             </p>
+           )}
         </div>
       </div>
 
@@ -269,9 +263,9 @@ export function PersonalInfoForm() {
       <div className="flex justify-end mt-8">
         <button
           onClick={handleNext}
-          disabled={!isMunicipalityValid && !!personalInfo.municipality} // Disable if municipality selected but not valid
+          disabled={!personalInfo?.municipality} 
           className={`px-4 py-2 rounded-md text-white font-semibold
-            ${(isMunicipalityValid || !personalInfo.municipality) // Enable if valid OR if municipality is not yet selected (to allow selection)
+            ${personalInfo?.municipality
               ? 'bg-blue-600 hover:bg-blue-700'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
