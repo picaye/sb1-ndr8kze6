@@ -22,10 +22,11 @@ import { ThurgauCollector } from './collectors/thurgau-collector';
 import { SolothurnCollector } from './collectors/solothurn-collector';
 import { FribourgCollector } from './collectors/fribourg-collector';
 import { BaselStadtCollector } from './collectors/basel-stadt-collector';
-import { ZugCollector } from './collectors/zug-collector'; // Added import
+import { ZugCollector } from './collectors/zug-collector';
+import { SchaffhausenCollector } from './collectors/schaffhausen-collector'; // Added import
+import { GraubuendenCollector } from './collectors/graubuenden-collector'; // Added import
 // Import other implemented canton collectors here as they are created
-// e.g., import { SchaffhausenCollector } from './collectors/schaffhausen-collector';
-// e.g., import { GraubuendenCollector } from './collectors/graubuenden-collector';
+// e.g., import { AppenzellCollector } from './collectors/appenzell-collector';
 
 /**
  * Comprehensive list of Swiss Cantons with names in multiple languages and their codes.
@@ -298,13 +299,13 @@ export class CollectorFactory {
         return new FribourgCollector(dataSource);
       case 'BS': 
         return new BaselStadtCollector(dataSource);
-      case 'ZG': // Added Zug
+      case 'ZG':
         return new ZugCollector(dataSource);
+      case 'SH': // Added Schaffhausen
+        return new SchaffhausenCollector(dataSource);
+      case 'GR': // Added Graubünden
+        return new GraubuendenCollector(dataSource);
       // Add cases for other implemented collectors:
-      // case 'SH':
-      //   return new SchaffhausenCollector(dataSource);
-      // case 'GR':
-      //   return new GraubuendenCollector(dataSource);
       default:
         console.warn(`No specific collector implemented for Canton ${cantonCode} (Source ID: ${dataSource.source_id}). A generic approach might be attempted or this source will be skipped.`);
         return null; 
