@@ -23,8 +23,9 @@ import { SolothurnCollector } from './collectors/solothurn-collector';
 import { FribourgCollector } from './collectors/fribourg-collector';
 import { BaselStadtCollector } from './collectors/basel-stadt-collector';
 import { ZugCollector } from './collectors/zug-collector';
-import { SchaffhausenCollector } from './collectors/schaffhausen-collector'; // Added import
-import { GraubuendenCollector } from './collectors/graubuenden-collector'; // Added import
+import { SchaffhausenCollector } from './collectors/schaffhausen-collector';
+import { GraubuendenCollector } from './collectors/graubuenden-collector';
+import { JuraCollector } from './collectors/jura-collector'; // Added import
 // Import other implemented canton collectors here as they are created
 // e.g., import { AppenzellCollector } from './collectors/appenzell-collector';
 
@@ -301,11 +302,19 @@ export class CollectorFactory {
         return new BaselStadtCollector(dataSource);
       case 'ZG':
         return new ZugCollector(dataSource);
-      case 'SH': // Added Schaffhausen
+      case 'SH':
         return new SchaffhausenCollector(dataSource);
-      case 'GR': // Added Graubünden
+      case 'GR':
         return new GraubuendenCollector(dataSource);
+      case 'JU': // Added Jura
+        return new JuraCollector(dataSource);
       // Add cases for other implemented collectors:
+      // case 'NE':
+      //   return new NeuchatelCollector(dataSource);
+      // case 'SZ':
+      //   return new SchwyzCollector(dataSource);
+      // case 'GL':
+      //   return new GlarusCollector(dataSource);
       default:
         console.warn(`No specific collector implemented for Canton ${cantonCode} (Source ID: ${dataSource.source_id}). A generic approach might be attempted or this source will be skipped.`);
         return null; 
