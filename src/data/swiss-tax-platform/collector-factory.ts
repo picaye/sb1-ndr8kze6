@@ -19,10 +19,13 @@ import { TicinoCollector } from './collectors/ticino-collector';
 import { BaselLandschaftCollector } from './collectors/basel-landschaft-collector';
 import { ValaisCollector } from './collectors/valais-collector';
 import { ThurgauCollector } from './collectors/thurgau-collector';
-import { SolothurnCollector } from './collectors/solothurn-collector'; // Added import
-import { FribourgCollector } from './collectors/fribourg-collector';   // Added import
+import { SolothurnCollector } from './collectors/solothurn-collector';
+import { FribourgCollector } from './collectors/fribourg-collector';
+import { BaselStadtCollector } from './collectors/basel-stadt-collector'; // Added import
 // Import other implemented canton collectors here as they are created
-// e.g., import { BaselStadtCollector } from './collectors/basel-stadt-collector';
+// e.g., import { ZugCollector } from './collectors/zug-collector';
+// e.g., import { SchaffhausenCollector } from './collectors/schaffhausen-collector';
+// e.g., import { GraubuendenCollector } from './collectors/graubuenden-collector';
 
 /**
  * Comprehensive list of Swiss Cantons with names in multiple languages and their codes.
@@ -240,6 +243,7 @@ export class CollectorFactory {
 
   /**
    * Creates a specific data collector instance based on the DataSource configuration.
+   * This now includes more specialized collectors for cantons like Basel-Stadt.
    * @param dataSource The DataSource object for which to create a collector.
    * @returns An instance of a BaseCollector subclass, or null if no suitable collector is found.
    */
@@ -288,13 +292,19 @@ export class CollectorFactory {
         return new ValaisCollector(dataSource);
       case 'TG':
         return new ThurgauCollector(dataSource);
-      case 'SO': // Added Solothurn
+      case 'SO':
         return new SolothurnCollector(dataSource);
-      case 'FR': // Added Fribourg
+      case 'FR':
         return new FribourgCollector(dataSource);
+      case 'BS': // Added Basel-Stadt
+        return new BaselStadtCollector(dataSource);
       // Add cases for other implemented collectors:
-      // case 'BS':
-      //   return new BaselStadtCollector(dataSource);
+      // case 'ZG':
+      //   return new ZugCollector(dataSource);
+      // case 'SH':
+      //   return new SchaffhausenCollector(dataSource);
+      // case 'GR':
+      //   return new GraubuendenCollector(dataSource);
       default:
         console.warn(`No specific collector implemented for Canton ${cantonCode} (Source ID: ${dataSource.source_id}). A generic approach might be attempted or this source will be skipped.`);
         return null; 
