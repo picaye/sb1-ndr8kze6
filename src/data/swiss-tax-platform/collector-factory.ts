@@ -13,9 +13,14 @@ import { GenevaCollector } from './collectors/geneva-collector';
 import { BernCollector } from './collectors/bern-collector';
 import { VaudCollector } from './collectors/vaud-collector';
 import { AargauCollector } from './collectors/aargau-collector';
-import { StGallenCollector } from './collectors/stgallen-collector'; // Added import
-import { LucerneCollector } from './collectors/lucerne-collector'; // Added import
-import { TicinoCollector } from './collectors/ticino-collector';   // Added import
+import { StGallenCollector } from './collectors/stgallen-collector';
+import { LucerneCollector } from './collectors/lucerne-collector';
+import { TicinoCollector } from './collectors/ticino-collector';
+import { BaselLandschaftCollector } from './collectors/basel-landschaft-collector';
+import { ValaisCollector } from './collectors/valais-collector';
+import { ThurgauCollector } from './collectors/thurgau-collector';
+import { SolothurnCollector } from './collectors/solothurn-collector'; // Added import
+import { FribourgCollector } from './collectors/fribourg-collector';   // Added import
 // Import other implemented canton collectors here as they are created
 // e.g., import { BaselStadtCollector } from './collectors/basel-stadt-collector';
 
@@ -271,12 +276,22 @@ export class CollectorFactory {
         return new VaudCollector(dataSource);
       case 'AG':
         return new AargauCollector(dataSource);
-      case 'SG': // Added St. Gallen
+      case 'SG':
         return new StGallenCollector(dataSource);
-      case 'LU': // Added Lucerne
+      case 'LU':
         return new LucerneCollector(dataSource);
-      case 'TI': // Added Ticino
+      case 'TI':
         return new TicinoCollector(dataSource);
+      case 'BL':
+        return new BaselLandschaftCollector(dataSource);
+      case 'VS':
+        return new ValaisCollector(dataSource);
+      case 'TG':
+        return new ThurgauCollector(dataSource);
+      case 'SO': // Added Solothurn
+        return new SolothurnCollector(dataSource);
+      case 'FR': // Added Fribourg
+        return new FribourgCollector(dataSource);
       // Add cases for other implemented collectors:
       // case 'BS':
       //   return new BaselStadtCollector(dataSource);
