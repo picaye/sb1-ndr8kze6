@@ -1,14 +1,14 @@
 import React, { Suspense, useEffect, Component, ErrorInfo, ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Toaster } from './components/ui/toaster';
+import { Toaster, ToastProvider } from './components/ui/toaster'; // Added ToastProvider
 import { useAuthStore } from './stores/authStore';
 import { logSecurityEvent, sanitizeError, SECURITY_CONSTANTS } from './utils/security/validation';
-import { generateSecurityHeaders, warnIfInsecure, buildCSP, CSPConfig } from './utils/security/encryption'; // Removed applySecurityHeaders as it's server-side
+import { generateSecurityHeaders, warnIfInsecure, buildCSP, CSPConfig } from './utils/security/encryption';
 
 // Layouts
-import { Header } from './components/Header'; // Changed to named import
-import { ProtectedRoute } from './components/layout/ProtectedRoute'; // Changed to named import
+import { Header } from './components/Header';
+import { ProtectedRoute } from './components/layout/ProtectedRoute';
 
 // Pages (Lazy Loaded)
 const HomePage = React.lazy(() => import('./pages/HomePage'));
@@ -45,7 +45,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    const errorId = logSecurityEvent({ // logSecurityEvent might not return a string ID directly, adjust if needed
+    const loggedEvent = logSecurityEvent({ 
       level: SECURITY_CONSTANTS.LOG_LEVELS.ERROR,
       message: 'Unhandled application error caught by ErrorBoundary',
       data: {
@@ -53,8 +53,10 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
         componentStack: errorInfo.componentStack,
       },
     });
-    // Assuming logSecurityEvent is void or returns something else, we might generate a client-side ID or skip it
-    this.setState({ errorId: errorId ? String(errorId) : undefined });
+    // logSecurityEvent is void, so we can't directly get an ID from it.
+    // If an ID is needed, it should be generated separately or returned by logSecurityEvent.
+    // For now, let's assume no ID is returned.
+    this.setState({ errorId: undefined }); 
     console.error("Uncaught error:", error, errorInfo);
   }
 
@@ -108,26 +110,19 @@ function App() {
     // Warn if running in an insecure context (HTTP)
     warnIfInsecure();
 
-    // Apply security headers (conceptually, as these are best set by the server)
-    // For SPAs, some can be set via meta tags, but HTTP headers are more robust.
     const cspConfig: CSPConfig = {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"], // 'unsafe-inline' might be needed for some dev setups or specific libraries, review for production
-      styleSrc: ["'self'", "'unsafe-inline'"],  // Same as above for styles
+      scriptSrc: ["'self'", "'unsafe-inline'"], 
+      styleSrc: ["'self'", "'unsafe-inline'"], 
       imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'"], // Allow connections to self, adjust if external APIs are used
+      connectSrc: ["'self'"], 
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
-      frameSrc: ["'none'"], // Disallow framing by default
+      frameSrc: ["'none'"], 
       upgradeInsecureRequests: true,
     };
     const headers = generateSecurityHeaders({ enableCSP: true, reportOnly: false });
     
-    // This is a conceptual application. In a real server-rendered app or via server config:
-    // Object.entries(headers).forEach(([key, value]) => { /* set HTTP header */ });
-    // console.log("Applying conceptual security headers:", headers);
-    
-    // For client-side, we can set a CSP meta tag, though it's less effective than HTTP headers.
     let cspMetaTag = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
     if (!cspMetaTag) {
       cspMetaTag = document.createElement('meta');
@@ -145,96 +140,98 @@ function App() {
   }, [i18n]);
 
   return (
-    <Router>
-      <ErrorBoundary>
-        <div className="flex flex-col min-h-screen bg-gray-50">
-          <Header />
-          <main className="flex-grow container mx-auto px-4 py-8">
-            <Suspense fallback={<div className="text-center py-10">{t('common.loading')}</div>}>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                
-                <Route 
-                  path="/calculator" 
-                  element={
-                    <ProtectedRoute
-                      isAuthenticated={isAuthenticated}
-                      element={<TaxCalculatorPage />}
-                    />
-                  } 
-                />
-                <Route 
-                  path="/results" 
-                  element={
-                    <ProtectedRoute
-                      isAuthenticated={isAuthenticated}
-                      element={<TaxResultsPage />}
-                    />
-                  } 
-                />
+    <ToastProvider> {/* Added ToastProvider wrapper */}
+      <Router>
+        <ErrorBoundary>
+          <div className="flex flex-col min-h-screen bg-gray-50">
+            <Header />
+            <main className="flex-grow container mx-auto px-4 py-8">
+              <Suspense fallback={<div className="text-center py-10">{t('common.loading')}</div>}>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  
+                  <Route 
+                    path="/calculator" 
+                    element={
+                      <ProtectedRoute
+                        isAuthenticated={isAuthenticated}
+                        element={<TaxCalculatorPage />}
+                      />
+                    } 
+                  />
+                  <Route 
+                    path="/results" 
+                    element={
+                      <ProtectedRoute
+                        isAuthenticated={isAuthenticated}
+                        element={<TaxResultsPage />}
+                      />
+                    } 
+                  />
 
-                {/* Admin Routes */}
-                <Route 
-                  path="/admin" 
-                  element={
-                    <ProtectedRoute
-                      isAuthenticated={isAuthenticated}
-                      isAdminRoute={true}
-                      isAdmin={isAdmin}
-                      element={<AdminDashboardPage />}
-                    />
-                  } 
-                />
-                <Route 
-                  path="/admin/affiliates" 
-                  element={
-                    <ProtectedRoute
-                      isAuthenticated={isAuthenticated}
-                      isAdminRoute={true}
-                      isAdmin={isAdmin}
-                      element={<AdminAffiliatesPage />}
-                    />
-                  } 
-                />
-                <Route 
-                  path="/admin/settings" 
-                  element={
-                    <ProtectedRoute
-                      isAuthenticated={isAuthenticated}
-                      isAdminRoute={true}
-                      isAdmin={isAdmin}
-                      element={<AdminSettingsPage />}
-                    />
-                  } 
-                />
-                 <Route 
-                  path="/admin/users" 
-                  element={
-                    <ProtectedRoute
-                      isAuthenticated={isAuthenticated}
-                      isAdminRoute={true}
-                      isAdmin={isAdmin}
-                      element={<AdminUsersPage />}
-                    />
-                  } 
-                />
-                
-                <Route path="/404" element={<NotFoundPage />} />
-                <Route path="*" element={<Navigate to="/404" replace />} />
-              </Routes>
-            </Suspense>
-          </main>
-          <Toaster />
-          <footer className="bg-gray-100 text-center py-4 text-sm text-gray-600 border-t">
-            © {new Date().getFullYear()} {t('appName', {defaultValue: 'Swiss Tax Calculator AI'})}. {t('footer.allRightsReserved', {defaultValue: 'All rights reserved.'})}
-          </footer>
-        </div>
-      </ErrorBoundary>
-    </Router>
+                  {/* Admin Routes */}
+                  <Route 
+                    path="/admin" 
+                    element={
+                      <ProtectedRoute
+                        isAuthenticated={isAuthenticated}
+                        isAdminRoute={true}
+                        isAdmin={isAdmin}
+                        element={<AdminDashboardPage />}
+                      />
+                    } 
+                  />
+                  <Route 
+                    path="/admin/affiliates" 
+                    element={
+                      <ProtectedRoute
+                        isAuthenticated={isAuthenticated}
+                        isAdminRoute={true}
+                        isAdmin={isAdmin}
+                        element={<AdminAffiliatesPage />}
+                      />
+                    } 
+                  />
+                  <Route 
+                    path="/admin/settings" 
+                    element={
+                      <ProtectedRoute
+                        isAuthenticated={isAuthenticated}
+                        isAdminRoute={true}
+                        isAdmin={isAdmin}
+                        element={<AdminSettingsPage />}
+                      />
+                    } 
+                  />
+                   <Route 
+                    path="/admin/users" 
+                    element={
+                      <ProtectedRoute
+                        isAuthenticated={isAuthenticated}
+                        isAdminRoute={true}
+                        isAdmin={isAdmin}
+                        element={<AdminUsersPage />}
+                      />
+                    } 
+                  />
+                  
+                  <Route path="/404" element={<NotFoundPage />} />
+                  <Route path="*" element={<Navigate to="/404" replace />} />
+                </Routes>
+              </Suspense>
+            </main>
+            <Toaster />
+            <footer className="bg-gray-100 text-center py-4 text-sm text-gray-600 border-t">
+              © {new Date().getFullYear()} {t('appName', {defaultValue: 'Swiss Tax Calculator AI'})}. {t('footer.allRightsReserved', {defaultValue: 'All rights reserved.'})}
+            </footer>
+          </div>
+        </ErrorBoundary>
+      </Router>
+    </ToastProvider>
   );
 }
 
