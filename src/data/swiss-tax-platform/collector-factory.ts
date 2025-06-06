@@ -11,15 +11,10 @@ import { BaseCollector } from './collectors/base-collector';
 import { ZurichCollector } from './collectors/zurich-collector';
 import { GenevaCollector } from './collectors/geneva-collector';
 import { BernCollector } from './collectors/bern-collector';
+import { VaudCollector } from './collectors/vaud-collector'; // Added import
+import { AargauCollector } from './collectors/aargau-collector'; // Added import
 // Import other implemented canton collectors here as they are created
-// e.g., import { VaudCollector } from './collectors/vaud-collector';
-
-// Utility for UUID generation - can be moved to a shared utils file if needed
-// For simplicity, keeping a basic version here if not already available globally
-// or if collectors are expected to get it from here.
-// However, collectors from previous step imported it from '../../security/encryption'
-// So, this might not be strictly needed here unless the factory itself uses it.
-// For now, assuming collectors handle their UUID needs.
+// e.g., import { BaselStadtCollector } from './collectors/basel-stadt-collector';
 
 /**
  * Comprehensive list of Swiss Cantons with names in multiple languages and their codes.
@@ -269,9 +264,17 @@ export class CollectorFactory {
         return new BernCollector(dataSource);
       case 'GE':
         return new GenevaCollector(dataSource);
+      case 'VD': // Added Vaud
+        return new VaudCollector(dataSource);
+      case 'AG': // Added Aargau
+        return new AargauCollector(dataSource);
       // Add cases for other implemented collectors:
-      // case 'VD':
-      //   return new VaudCollector(dataSource);
+      // case 'LU':
+      //   return new LucerneCollector(dataSource);
+      // case 'SG':
+      //   return new StGallenCollector(dataSource);
+      // case 'TI':
+      //   return new TicinoCollector(dataSource);
       // case 'BS':
       //   return new BaselStadtCollector(dataSource);
       default:
