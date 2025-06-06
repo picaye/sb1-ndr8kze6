@@ -21,9 +21,9 @@ import { ValaisCollector } from './collectors/valais-collector';
 import { ThurgauCollector } from './collectors/thurgau-collector';
 import { SolothurnCollector } from './collectors/solothurn-collector';
 import { FribourgCollector } from './collectors/fribourg-collector';
-import { BaselStadtCollector } from './collectors/basel-stadt-collector'; // Added import
+import { BaselStadtCollector } from './collectors/basel-stadt-collector';
+import { ZugCollector } from './collectors/zug-collector'; // Added import
 // Import other implemented canton collectors here as they are created
-// e.g., import { ZugCollector } from './collectors/zug-collector';
 // e.g., import { SchaffhausenCollector } from './collectors/schaffhausen-collector';
 // e.g., import { GraubuendenCollector } from './collectors/graubuenden-collector';
 
@@ -296,11 +296,11 @@ export class CollectorFactory {
         return new SolothurnCollector(dataSource);
       case 'FR':
         return new FribourgCollector(dataSource);
-      case 'BS': // Added Basel-Stadt
+      case 'BS': 
         return new BaselStadtCollector(dataSource);
+      case 'ZG': // Added Zug
+        return new ZugCollector(dataSource);
       // Add cases for other implemented collectors:
-      // case 'ZG':
-      //   return new ZugCollector(dataSource);
       // case 'SH':
       //   return new SchaffhausenCollector(dataSource);
       // case 'GR':
