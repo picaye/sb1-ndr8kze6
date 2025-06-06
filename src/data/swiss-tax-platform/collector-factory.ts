@@ -11,8 +11,11 @@ import { BaseCollector } from './collectors/base-collector';
 import { ZurichCollector } from './collectors/zurich-collector';
 import { GenevaCollector } from './collectors/geneva-collector';
 import { BernCollector } from './collectors/bern-collector';
-import { VaudCollector } from './collectors/vaud-collector'; // Added import
-import { AargauCollector } from './collectors/aargau-collector'; // Added import
+import { VaudCollector } from './collectors/vaud-collector';
+import { AargauCollector } from './collectors/aargau-collector';
+import { StGallenCollector } from './collectors/stgallen-collector'; // Added import
+import { LucerneCollector } from './collectors/lucerne-collector'; // Added import
+import { TicinoCollector } from './collectors/ticino-collector';   // Added import
 // Import other implemented canton collectors here as they are created
 // e.g., import { BaselStadtCollector } from './collectors/basel-stadt-collector';
 
@@ -264,17 +267,17 @@ export class CollectorFactory {
         return new BernCollector(dataSource);
       case 'GE':
         return new GenevaCollector(dataSource);
-      case 'VD': // Added Vaud
+      case 'VD':
         return new VaudCollector(dataSource);
-      case 'AG': // Added Aargau
+      case 'AG':
         return new AargauCollector(dataSource);
+      case 'SG': // Added St. Gallen
+        return new StGallenCollector(dataSource);
+      case 'LU': // Added Lucerne
+        return new LucerneCollector(dataSource);
+      case 'TI': // Added Ticino
+        return new TicinoCollector(dataSource);
       // Add cases for other implemented collectors:
-      // case 'LU':
-      //   return new LucerneCollector(dataSource);
-      // case 'SG':
-      //   return new StGallenCollector(dataSource);
-      // case 'TI':
-      //   return new TicinoCollector(dataSource);
       // case 'BS':
       //   return new BaselStadtCollector(dataSource);
       default:
