@@ -1,10 +1,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Settings, Users, FileSpreadsheet, ChevronRight, Link } from 'lucide-react';
+import { Settings, Users, FileSpreadsheet, ChevronRight } from 'lucide-react'; // Removed Link as Affiliate button will be removed
 import { AdminStats } from './AdminStats';
 import { AdminUserList } from './AdminUserList';
 import { AdminSettings } from './AdminSettings';
-import { AffiliateManagement } from './affiliates/AffiliateManagement';
+// import { AffiliateManagement } from './affiliates/AffiliateManagement'; // Removed import
 
 export function AdminDashboard() {
   const { t } = useTranslation();
@@ -16,8 +16,13 @@ export function AdminDashboard() {
         return <AdminUserList />;
       case 'settings':
         return <AdminSettings />;
-      case 'affiliates':
-        return <AffiliateManagement />;
+      case 'affiliates': // This case will no longer be reachable if button is removed, but kept for type safety.
+        return (
+          <div className="p-6">
+            <h2 className="text-xl font-semibold">{t('admin.affiliates.title')}</h2>
+            <p className="mt-2 text-gray-600">{t('common.underConstruction', {defaultValue: 'This section is currently under construction.'})}</p>
+          </div>
+        );
       default:
         return <AdminStats />;
     }
@@ -27,7 +32,7 @@ export function AdminDashboard() {
     <div className="min-h-[calc(100vh-4rem)]">
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-gray-900">{t('admin.dashboard')}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('admin.dashboard.title')}</h1>
         </div>
       </div>
 
@@ -46,7 +51,7 @@ export function AdminDashboard() {
                   }`}
                 >
                   <FileSpreadsheet className="w-5 h-5 mr-3" />
-                  {t('admin.overview')}
+                  {t('admin.dashboard.recentActivity', {defaultValue: 'Overview'})}
                   <ChevronRight className="w-5 h-5 ml-auto" />
                 </button>
 
@@ -59,10 +64,12 @@ export function AdminDashboard() {
                   }`}
                 >
                   <Users className="w-5 h-5 mr-3" />
-                  {t('admin.users')}
+                  {t('admin.users', {defaultValue: 'Users'})}
                   <ChevronRight className="w-5 h-5 ml-auto" />
                 </button>
 
+                {/* Affiliates button commented out as requested */}
+                {/*
                 <button
                   onClick={() => setActiveSection('affiliates')}
                   className={`w-full flex items-center px-4 py-3 text-sm font-medium ${
@@ -75,6 +82,7 @@ export function AdminDashboard() {
                   {t('admin.affiliates.title')}
                   <ChevronRight className="w-5 h-5 ml-auto" />
                 </button>
+                */}
 
                 <button
                   onClick={() => setActiveSection('settings')}
@@ -85,7 +93,7 @@ export function AdminDashboard() {
                   }`}
                 >
                   <Settings className="w-5 h-5 mr-3" />
-                  {t('admin.settings')}
+                  {t('admin.settings.title')}
                   <ChevronRight className="w-5 h-5 ml-auto" />
                 </button>
               </nav>
