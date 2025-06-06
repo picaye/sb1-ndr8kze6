@@ -27,6 +27,8 @@ import { SchaffhausenCollector } from './collectors/schaffhausen-collector';
 import { GraubuendenCollector } from './collectors/graubuenden-collector';
 import { JuraCollector } from './collectors/jura-collector';
 import { NeuchatelCollector } from './collectors/neuchatel-collector'; // Added import
+import { SchwyzCollector } from './collectors/schwyz-collector'; // Added import
+import { GlarusCollector } from './collectors/glarus-collector'; // Added import
 // Import other implemented canton collectors here as they are created
 // e.g., import { SchwyzCollector } from './collectors/schwyz-collector';
 // e.g., import { GlarusCollector } from './collectors/glarus-collector';
@@ -311,6 +313,11 @@ export class CollectorFactory {
       case 'JU':
         return new JuraCollector(dataSource);
       case 'NE': // Added Neuchâtel
+        return new NeuchatelCollector(dataSource);
+      case 'SZ':
+        return new SchwyzCollector(dataSource);
+      case 'GL':
+        return new GlarusCollector(dataSource);
         return new NeuchatelCollector(dataSource);
       // Add cases for other implemented collectors:
       // case 'SZ':
