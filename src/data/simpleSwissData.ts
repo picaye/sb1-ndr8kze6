@@ -20,130 +20,202 @@ export interface SimpleCantonDataWithRates {
 export const simpleSwissMunicipalities: SimpleCantonDataWithRates = {
   'Aargau': [
     { name: 'Aarau', bfsNr: 4001, taxMultiplier2024: 1.09, taxMultiplier2025: 1.09 },
-    { name: 'Abtwil', bfsNr: 4271, taxMultiplier2024: 1.12, taxMultiplier2025: 1.12 },
-    { name: 'Arni (AG)', bfsNr: 4061, taxMultiplier2024: 1.18, taxMultiplier2025: 1.18 },
     { name: 'Baden', bfsNr: 4021, taxMultiplier2024: 0.95, taxMultiplier2025: 0.95 },
-    { name: 'Beinwil (Freiamt)', bfsNr: 4222, taxMultiplier2024: 1.20, taxMultiplier2025: 1.20 },
-    { name: 'Bergdietikon', bfsNr: 4022, taxMultiplier2024: 0.88, taxMultiplier2025: 0.88 },
-    { name: 'Birmenstorf (AG)', bfsNr: 4023, taxMultiplier2024: 0.99, taxMultiplier2025: 0.99 },
-    { name: 'Boniswil', bfsNr: 4191, taxMultiplier2024: 1.10, taxMultiplier2025: 1.10 },
-    { name: 'Boswil', bfsNr: 4223, taxMultiplier2024: 1.08, taxMultiplier2025: 1.08 },
-    { name: 'Bottenwil', bfsNr: 4273, taxMultiplier2024: 1.15, taxMultiplier2025: 1.15 },
-    { name: 'Bremgarten (AG)', bfsNr: 4062, taxMultiplier2024: 1.05, taxMultiplier2025: 1.05 },
     { name: 'Brugg', bfsNr: 4095, taxMultiplier2024: 1.07, taxMultiplier2025: 1.07 },
-    { name: 'Brunegg', bfsNr: 4193, taxMultiplier2024: 0.98, taxMultiplier2025: 0.98 },
-    { name: 'Buchs (AG)', bfsNr: 4002, taxMultiplier2024: 0.96, taxMultiplier2025: 0.96 },
-    { name: 'Bünzen', bfsNr: 4224, taxMultiplier2024: 1.16, taxMultiplier2025: 1.16 },
-    { name: 'Burg (AG)', bfsNr: 4221, taxMultiplier2024: 1.10, taxMultiplier2025: 1.10 },
-    { name: 'Büttikon', bfsNr: 4225, taxMultiplier2024: 1.14, taxMultiplier2025: 1.14 },
-    { name: 'Dintikon', bfsNr: 4196, taxMultiplier2024: 1.06, taxMultiplier2025: 1.06 },
-    { name: 'Dottikon', bfsNr: 4064, taxMultiplier2024: 1.02, taxMultiplier2025: 1.02 },
-    { name: 'Egliswil', bfsNr: 4197, taxMultiplier2024: 1.00, taxMultiplier2025: 1.00 },
-    { name: 'Ehrendingen', bfsNr: 4049, taxMultiplier2024: 0.97, taxMultiplier2025: 0.97 },
-    { name: 'Eiken', bfsNr: 4161, taxMultiplier2024: 0.99, taxMultiplier2025: 0.99 },
-    { name: 'Endingen', bfsNr: 4321, taxMultiplier2024: 1.04, taxMultiplier2025: 1.04 },
-    { name: 'Ennetbaden', bfsNr: 4026, taxMultiplier2024: 0.85, taxMultiplier2025: 0.85 },
-    { name: 'Erlinsbach (AG)', bfsNr: 4003, taxMultiplier2024: 1.05, taxMultiplier2025: 1.05 },
-    { name: 'Fahrwangen', bfsNr: 4226, taxMultiplier2024: 1.13, taxMultiplier2025: 1.13 },
-    { name: 'Fislisbach', bfsNr: 4027, taxMultiplier2024: 0.93, taxMultiplier2025: 0.93 },
-    { name: 'Freienwil', bfsNr: 4028, taxMultiplier2024: 1.00, taxMultiplier2025: 1.00 },
     { name: 'Frick', bfsNr: 4165, taxMultiplier2024: 0.98, taxMultiplier2025: 0.98 },
-    { name: 'Gebenstorf', bfsNr: 4029, taxMultiplier2024: 1.03, taxMultiplier2025: 1.03 },
-    { name: 'Gränichen', bfsNr: 4005, taxMultiplier2024: 1.10, taxMultiplier2025: 1.10 },
-    { name: 'Hallwil', bfsNr: 4199, taxMultiplier2024: 0.96, taxMultiplier2025: 0.96 },
-    { name: 'Hendschiken', bfsNr: 4200, taxMultiplier2024: 1.01, taxMultiplier2025: 1.01 },
-    { name: 'Holderbank (AG)', bfsNr: 4099, taxMultiplier2024: 0.90, taxMultiplier2025: 0.90 },
-    { name: 'Holziken', bfsNr: 4277, taxMultiplier2024: 1.07, taxMultiplier2025: 1.07 },
-    { name: 'Jonen', bfsNr: 4069, taxMultiplier2024: 0.94, taxMultiplier2025: 0.94 },
-    { name: 'Killwangen', bfsNr: 4030, taxMultiplier2024: 1.08, taxMultiplier2025: 1.08 },
-    { name: 'Küttigen', bfsNr: 4006, taxMultiplier2024: 0.99, taxMultiplier2025: 0.99 },
-    { name: 'Laufenburg', bfsNr: 4169, taxMultiplier2024: 1.03, taxMultiplier2025: 1.03 },
     { name: 'Lenzburg', bfsNr: 4201, taxMultiplier2024: 1.03, taxMultiplier2025: 1.03 },
-    { name: 'Lupfig', bfsNr: 4104, taxMultiplier2024: 0.97, taxMultiplier2025: 0.97 },
-    { name: 'Mägenwil', bfsNr: 4202, taxMultiplier2024: 0.92, taxMultiplier2025: 0.92 },
-    { name: 'Meisterschwanden', bfsNr: 4203, taxMultiplier2024: 0.90, taxMultiplier2025: 0.90 },
-    { name: 'Mellingen', bfsNr: 4251, taxMultiplier2024: 1.06, taxMultiplier2025: 1.06 },
-    { name: 'Menziken', bfsNr: 4238, taxMultiplier2024: 1.12, taxMultiplier2025: 1.12 },
-    { name: 'Merenschwand', bfsNr: 4239, taxMultiplier2024: 1.07, taxMultiplier2025: 1.07 },
     { name: 'Möhlin', bfsNr: 4257, taxMultiplier2024: 1.00, taxMultiplier2025: 1.00 },
-    { name: 'Muhen', bfsNr: 4008, taxMultiplier2024: 1.07, taxMultiplier2025: 1.07 },
-    { name: 'Muri (AG)', bfsNr: 4240, taxMultiplier2024: 1.04, taxMultiplier2025: 1.04 },
     { name: 'Neuenhof', bfsNr: 4032, taxMultiplier2024: 1.02, taxMultiplier2025: 1.02 },
-    { name: 'Niederlenz', bfsNr: 4205, taxMultiplier2024: 1.00, taxMultiplier2025: 1.00 },
-    { name: 'Niederrohrdorf', bfsNr: 4033, taxMultiplier2024: 0.92, taxMultiplier2025: 0.92 },
-    { name: 'Oberentfelden', bfsNr: 4009, taxMultiplier2024: 1.08, taxMultiplier2025: 1.08 },
-    { name: 'Oberrohrdorf', taxMultiplier2024: 0.90, taxMultiplier2025: 0.90 },
-    { name: 'Oberwil-Lieli', taxMultiplier2024: 0.75, taxMultiplier2025: 0.75 }, // Known low tax
     { name: 'Oftringen', bfsNr: 4280, taxMultiplier2024: 1.12, taxMultiplier2025: 1.12 },
-    { name: 'Othmarsingen', taxMultiplier2024: 0.94, taxMultiplier2025: 0.94 },
-    { name: 'Reinach (AG)', bfsNr: 4243, taxMultiplier2024: 1.05, taxMultiplier2025: 1.05 },
     { name: 'Rheinfelden', bfsNr: 4258, taxMultiplier2024: 1.05, taxMultiplier2025: 1.05 },
-    { name: 'Rothrist', bfsNr: 4282, taxMultiplier2024: 1.10, taxMultiplier2025: 1.10 },
-    { name: 'Rudolfstetten-Friedlisberg', taxMultiplier2024: 1.03, taxMultiplier2025: 1.03 },
-    { name: 'Rupperswil', taxMultiplier2024: 0.98, taxMultiplier2025: 0.98 },
-    { name: 'Safenwil', taxMultiplier2024: 1.05, taxMultiplier2025: 1.05 },
-    { name: 'Schafisheim', taxMultiplier2024: 0.99, taxMultiplier2025: 0.99 },
-    { name: 'Seengen', taxMultiplier2024: 0.97, taxMultiplier2025: 0.97 },
-    { name: 'Seon', bfsNr: 4209, taxMultiplier2024: 1.04, taxMultiplier2025: 1.04 },
-    { name: 'Siggenthal Station', taxMultiplier2024: 1.00, taxMultiplier2025: 1.00 },
-    { name: 'Sins', taxMultiplier2024: 1.09, taxMultiplier2025: 1.09 },
     { name: 'Spreitenbach', bfsNr: 4037, taxMultiplier2024: 1.05, taxMultiplier2025: 1.05 },
-    { name: 'Staufen', bfsNr: 4210, taxMultiplier2024: 0.97, taxMultiplier2025: 0.97 },
-    { name: 'Strengelbach', bfsNr: 4286, taxMultiplier2024: 1.11, taxMultiplier2025: 1.11 },
     { name: 'Suhr', bfsNr: 4012, taxMultiplier2024: 1.08, taxMultiplier2025: 1.08 },
-    { name: 'Turgi', taxMultiplier2024: 1.01, taxMultiplier2025: 1.01 },
-    { name: 'Unterentfelden', taxMultiplier2024: 1.06, taxMultiplier2025: 1.06 },
-    { name: 'Unterkulm', bfsNr: 4246, taxMultiplier2024: 1.09, taxMultiplier2025: 1.09 },
-    { name: 'Untersiggenthal', taxMultiplier2024: 0.98, taxMultiplier2025: 0.98 },
-    { name: 'Veltheim (AG)', taxMultiplier2024: 1.02, taxMultiplier2025: 1.02 },
     { name: 'Villmergen', bfsNr: 4079, taxMultiplier2024: 1.06, taxMultiplier2025: 1.06 },
     { name: 'Wettingen', bfsNr: 4040, taxMultiplier2024: 0.90, taxMultiplier2025: 0.90 },
-    { name: 'Widen', taxMultiplier2024: 0.86, taxMultiplier2025: 0.86 },
     { name: 'Windisch', bfsNr: 4126, taxMultiplier2024: 1.01, taxMultiplier2025: 1.01 },
     { name: 'Wohlen (AG)', bfsNr: 4081, taxMultiplier2024: 1.15, taxMultiplier2025: 1.15 },
-    { name: 'Würenlingen', taxMultiplier2024: 0.99, taxMultiplier2025: 0.99 },
-    { name: 'Würenlos', taxMultiplier2024: 0.93, taxMultiplier2025: 0.93 },
-    { name: 'Zofingen', bfsNr: 4289, taxMultiplier2024: 1.06, taxMultiplier2025: 1.06 },
-    { name: 'Zufikon', taxMultiplier2024: 0.96, taxMultiplier2025: 0.96 },
-   ],
-   'Appenzell Ausserrhoden': [ // Note: AR uses a different system (Steuerfuss in Promille der einfachen Kantonssteuer)
-     { name: 'Herisau', bfsNr: 3001, taxMultiplier2024: 3.4, taxMultiplier2025: 3.4 },
-@@ -252,7 +415,7 @@
-     { name: 'Steinhausen', bfsNr: 1708, taxMultiplier2024: 0.54, taxMultiplier2025: 0.54 },
-   ],
-   'Zürich': [
--    { name: 'Adliswil', bfsNr: 131, taxMultiplier2024: 1.09, taxMultiplier2025: 1.09 },
-+    { name: 'Adliswil', bfsNr: 131, taxMultiplier2024: 1.09, taxMultiplier2025: 1.09 }, // BFS numbers are official
-     { name: 'Affoltern am Albis', bfsNr: 1, taxMultiplier2024: 1.18, taxMultiplier2025: 1.18 },
-     { name: 'Bachenbülach', bfsNr: 51, taxMultiplier2024: 1.03, taxMultiplier2025: 1.03 },
-     { name: 'Bassersdorf', bfsNr: 171, taxMultiplier2024: 1.05, taxMultiplier2025: 1.05 },
-@@ -275,8 +438,7 @@
-     { name: 'Kilchberg (ZH)', bfsNr: 137, taxMultiplier2024: 0.75, taxMultiplier2025: 0.75 },
-     { name: 'Kloten', bfsNr: 176, taxMultiplier2024: 0.98, taxMultiplier2025: 0.98 },
-     { name: 'Küsnacht (ZH)', bfsNr: 155, taxMultiplier2024: 0.77, taxMultiplier2025: 0.77 },
--    { name: 'Langnau am Albis', bfsNr: 139, taxMultiplier2024: 1.09, taxMultiplier2025: 1.09 },
--    { name: 'Männedorf', bfsNr: 156, taxMultiplier2024: 1.05, taxMultiplier2025: 1.05 },
-+    { name: 'Langnau am Albis', bfsNr: 139, taxMultiplier2024: 1.09, taxMultiplier2025: 1.09 },    { name: 'Männedorf', bfsNr: 156, taxMultiplier2024: 1.05, taxMultiplier2025: 1.05 },
-     { name: 'Maur', bfsNr: 195, taxMultiplier2024: 0.90, taxMultiplier2025: 0.90 },
-     { name: 'Meilen', bfsNr: 157, taxMultiplier2024: 0.87, taxMultiplier2025: 0.87 },
-     { name: 'Niederhasli', bfsNr: 35, taxMultiplier2024: 0.99, taxMultiplier2025: 0.99 },
-@@ -293,8 +455,7 @@
-     { name: 'Seuzach', bfsNr: 224, taxMultiplier2024: 1.05, taxMultiplier2025: 1.05 },
-     { name: 'Stäfa', bfsNr: 160, taxMultiplier2024: 0.99, taxMultiplier2025: 0.99 },
-     { name: 'Steinmaur', bfsNr: 40, taxMultiplier2024: 1.03, taxMultiplier2025: 1.03 },
--    { name: 'Thalwil', bfsNr: 141, taxMultiplier2024: 0.90, taxMultiplier2025: 0.90 }, // BFS for Schlieren, Thalwil is 161. Correcting.
--    // { name: 'Thalwil', bfsNr: 161, taxMultiplier2024: 0.90, taxMultiplier2025: 0.90 },
-+    { name: 'Thalwil', bfsNr: 161, taxMultiplier2024: 0.90, taxMultiplier2025: 0.90 },
-     { name: 'Uitikon', bfsNr: 250, taxMultiplier2024: 0.85, taxMultiplier2025: 0.85 },
-     { name: 'Urdorf', bfsNr: 142, taxMultiplier2024: 1.09, taxMultiplier2025: 1.09 },
-     { name: 'Uster', bfsNr: 198, taxMultiplier2024: 1.10, taxMultiplier2025: 1.10 },
-@@ -302,8 +463,7 @@
-     { name: 'Wädenswil', bfsNr: 297, taxMultiplier2024: 1.09, taxMultiplier2025: 1.09 }, // BFS for Wetzikon, Wädenswil is 162. Correcting.
-     // { name: 'Wädenswil', bfsNr: 162, taxMultiplier2024: 1.09, taxMultiplier2025: 1.09 },
-     { name: 'Wallisellen', bfsNr: 200, taxMultiplier2024: 0.94, taxMultiplier2025: 0.94 },
--    { name: 'Wangen-Brüttisellen', bfsNr: 201, taxMultiplier2024: 0.90, taxMultiplier2025: 0.90 },
--    { name: 'Weisslingen', bfsNr: 180, taxMultiplier2024: 1.18, taxMultiplier2025: 1.18 },
-+    { name: 'Wangen-Brüttisellen', bfsNr: 201, taxMultiplier2024: 0.90, taxMultiplier2025: 0.90 },    { name: 'Weisslingen', bfsNr: 180, taxMultiplier2024: 1.18, taxMultiplier2025: 1.18 },
-     { name: 'Wetzikon (ZH)', bfsNr: 100, taxMultiplier2024: 1.13, taxMultiplier2025: 1.13 },
-     { name: 'Winterthur', bfsNr: 230, taxMultiplier2024: 1.22, taxMultiplier2025: 1.22 },
-     { name: 'Zollikon', bfsNr: 163, taxMultiplier2024: 0.82, taxMultiplier2025: 0.82 },
+    { name: 'Zofingen', bfsNr: 4289, taxMultiplier2024: 1.06, taxMultiplier2025: 1.06 }
+  ],
+  'Basel-Landschaft': [
+    { name: 'Allschwil', taxMultiplier2024: 0.60, taxMultiplier2025: 0.60 },
+    { name: 'Arlesheim', taxMultiplier2024: 0.53, taxMultiplier2025: 0.53 },
+    { name: 'Binningen', taxMultiplier2024: 0.48, taxMultiplier2025: 0.48 },
+    { name: 'Liestal', taxMultiplier2024: 0.62, taxMultiplier2025: 0.62 },
+    { name: 'Münchenstein', taxMultiplier2024: 0.58, taxMultiplier2025: 0.58 },
+    { name: 'Muttenz', taxMultiplier2024: 0.55, taxMultiplier2025: 0.55 },
+    { name: 'Oberwil (BL)', taxMultiplier2024: 0.50, taxMultiplier2025: 0.50 },
+    { name: 'Pratteln', taxMultiplier2024: 0.60, taxMultiplier2025: 0.60 },
+    { name: 'Reinach (BL)', taxMultiplier2024: 0.56, taxMultiplier2025: 0.56 }
+  ],
+  'Basel-Stadt': [
+    { name: 'Basel', taxMultiplier2024: 1.0, taxMultiplier2025: 1.0 },
+    { name: 'Bettingen', taxMultiplier2024: 1.0, taxMultiplier2025: 1.0 },
+    { name: 'Riehen', taxMultiplier2024: 1.0, taxMultiplier2025: 1.0 }
+  ],
+  'Bern': [
+    { name: 'Bern', bfsNr: 351, taxMultiplier2024: 1.54, taxMultiplier2025: 1.54 },
+    { name: 'Biel/Bienne', bfsNr: 371, taxMultiplier2024: 1.63, taxMultiplier2025: 1.63 },
+    { name: 'Thun', bfsNr: 942, taxMultiplier2024: 1.65, taxMultiplier2025: 1.65 },
+    { name: 'Köniz', bfsNr: 585, taxMultiplier2024: 1.49, taxMultiplier2025: 1.49 },
+    { name: 'Burgdorf', bfsNr: 404, taxMultiplier2024: 1.63, taxMultiplier2025: 1.63 },
+    { name: 'Langenthal', bfsNr: 425, taxMultiplier2024: 1.59, taxMultiplier2025: 1.59 },
+    { name: 'Interlaken', bfsNr: 502, taxMultiplier2024: 1.75, taxMultiplier2025: 1.75 },
+    { name: 'Münsingen', bfsNr: 547, taxMultiplier2024: 1.55, taxMultiplier2025: 1.55 }
+  ],
+  'Fribourg': [
+    { name: 'Bulle', taxMultiplier2024: 0.81, taxMultiplier2025: 0.81 },
+    { name: 'Fribourg', taxMultiplier2024: 0.83, taxMultiplier2025: 0.83 },
+    { name: 'Murten', taxMultiplier2024: 0.70, taxMultiplier2025: 0.70 },
+    { name: 'Villars-sur-Glâne', taxMultiplier2024: 0.75, taxMultiplier2025: 0.75 },
+    { name: 'Düdingen', taxMultiplier2024: 0.85, taxMultiplier2025: 0.85 }
+  ],
+  'Geneva': [
+    { name: 'Genève', bfsNr: 6621, taxMultiplier2024: 0.455, taxMultiplier2025: 0.455 },
+    { name: 'Carouge (GE)', bfsNr: 6608, taxMultiplier2024: 0.445, taxMultiplier2025: 0.445 },
+    { name: 'Lancy', bfsNr: 6624, taxMultiplier2024: 0.475, taxMultiplier2025: 0.475 },
+    { name: 'Meyrin', bfsNr: 6628, taxMultiplier2024: 0.440, taxMultiplier2025: 0.440 },
+    { name: 'Onex', bfsNr: 6631, taxMultiplier2024: 0.480, taxMultiplier2025: 0.480 },
+    { name: 'Vernier', bfsNr: 6644, taxMultiplier2024: 0.475, taxMultiplier2025: 0.475 },
+    { name: 'Cologny', bfsNr: 6610, taxMultiplier2024: 0.300, taxMultiplier2025: 0.300 },
+    { name: 'Plan-les-Ouates', bfsNr: 6633, taxMultiplier2024: 0.380, taxMultiplier2025: 0.380 }
+  ],
+  'Glarus': [
+    { name: 'Glarus', bfsNr: 1628, taxMultiplier2024: 0.58, taxMultiplier2025: 0.58 },
+    { name: 'Glarus Nord', bfsNr: 1627, taxMultiplier2024: 0.58, taxMultiplier2025: 0.58 },
+    { name: 'Glarus Süd', bfsNr: 1629, taxMultiplier2024: 0.58, taxMultiplier2025: 0.58 }
+  ],
+  'Graubünden': [
+    { name: 'Chur', taxMultiplier2024: 1.05, taxMultiplier2025: 1.05 },
+    { name: 'Davos', taxMultiplier2024: 0.80, taxMultiplier2025: 0.80 },
+    { name: 'St. Moritz', taxMultiplier2024: 0.70, taxMultiplier2025: 0.70 },
+    { name: 'Domat/Ems', taxMultiplier2024: 1.00, taxMultiplier2025: 1.00 },
+    { name: 'Landquart', taxMultiplier2024: 0.98, taxMultiplier2025: 0.98 }
+  ],
+  'Jura': [
+    { name: 'Delémont', bfsNr: 6706, taxMultiplier2024: 1.90, taxMultiplier2025: 1.90 },
+    { name: 'Porrentruy', bfsNr: 6721, taxMultiplier2024: 1.95, taxMultiplier2025: 1.95 },
+    { name: 'Haute-Sorne', bfsNr: 6809, taxMultiplier2024: 1.85, taxMultiplier2025: 1.85 },
+    { name: 'Saignelégier', bfsNr: 6757, taxMultiplier2024: 1.80, taxMultiplier2025: 1.80 }
+  ],
+  'Luzern': [
+    { name: 'Luzern', taxMultiplier2024: 1.75, taxMultiplier2025: 1.75 },
+    { name: 'Emmen', taxMultiplier2024: 1.95, taxMultiplier2025: 1.95 },
+    { name: 'Kriens', taxMultiplier2024: 1.80, taxMultiplier2025: 1.80 },
+    { name: 'Horw', taxMultiplier2024: 1.45, taxMultiplier2025: 1.45 },
+    { name: 'Sursee', taxMultiplier2024: 1.70, taxMultiplier2025: 1.70 }
+  ],
+  'Neuchâtel': [
+    { name: 'Neuchâtel', bfsNr: 6421, taxMultiplier2024: 0.65, taxMultiplier2025: 0.65 },
+    { name: 'La Chaux-de-Fonds', bfsNr: 6424, taxMultiplier2024: 0.75, taxMultiplier2025: 0.75 },
+    { name: 'Le Locle', bfsNr: 6425, taxMultiplier2024: 0.78, taxMultiplier2025: 0.78 },
+    { name: 'Val-de-Ruz', bfsNr: 6430, taxMultiplier2024: 0.70, taxMultiplier2025: 0.70 }
+  ],
+  'Schwyz': [
+    { name: 'Schwyz', bfsNr: 1305, taxMultiplier2024: 1.30, taxMultiplier2025: 1.30 },
+    { name: 'Freienbach', bfsNr: 1321, taxMultiplier2024: 0.75, taxMultiplier2025: 0.75 },
+    { name: 'Einsiedeln', bfsNr: 1301, taxMultiplier2024: 1.80, taxMultiplier2025: 1.80 },
+    { name: 'Küssnacht (SZ)', bfsNr: 1302, taxMultiplier2024: 0.90, taxMultiplier2025: 0.90 },
+    { name: 'Wollerau', bfsNr: 1323, taxMultiplier2024: 0.60, taxMultiplier2025: 0.60 }
+  ],
+  'Solothurn': [
+    { name: 'Solothurn', taxMultiplier2024: 1.20, taxMultiplier2025: 1.20 },
+    { name: 'Olten', taxMultiplier2024: 1.18, taxMultiplier2025: 1.18 },
+    { name: 'Grenchen', taxMultiplier2024: 1.28, taxMultiplier2025: 1.28 }
+  ],
+  'St. Gallen': [
+    { name: 'St. Gallen', taxMultiplier2024: 1.45, taxMultiplier2025: 1.45 },
+    { name: 'Rapperswil-Jona', taxMultiplier2024: 0.94, taxMultiplier2025: 0.94 },
+    { name: 'Wil (SG)', taxMultiplier2024: 1.35, taxMultiplier2025: 1.35 },
+    { name: 'Gossau (SG)', taxMultiplier2024: 1.25, taxMultiplier2025: 1.25 },
+    { name: 'Buchs (SG)', taxMultiplier2024: 1.15, taxMultiplier2025: 1.15 }
+  ],
+  'Thurgau': [
+    { name: 'Frauenfeld', taxMultiplier2024: 1.63, taxMultiplier2025: 1.63 },
+    { name: 'Kreuzlingen', taxMultiplier2024: 1.68, taxMultiplier2025: 1.68 },
+    { name: 'Arbon', taxMultiplier2024: 1.73, taxMultiplier2025: 1.73 }
+  ],
+  'Ticino': [
+    { name: 'Lugano', taxMultiplier2024: 0.75, taxMultiplier2025: 0.75 },
+    { name: 'Bellinzona', taxMultiplier2024: 0.90, taxMultiplier2025: 0.90 },
+    { name: 'Locarno', taxMultiplier2024: 0.85, taxMultiplier2025: 0.85 },
+    { name: 'Chiasso', taxMultiplier2024: 0.90, taxMultiplier2025: 0.90 },
+    { name: 'Mendrisio', taxMultiplier2024: 0.80, taxMultiplier2025: 0.80 }
+  ],
+  'Valais': [
+    { name: 'Sion', taxMultiplier2024: 1.25, taxMultiplier2025: 1.25 },
+    { name: 'Martigny', taxMultiplier2024: 1.25, taxMultiplier2025: 1.25 },
+    { name: 'Monthey', taxMultiplier2024: 1.30, taxMultiplier2025: 1.30 },
+    { name: 'Sierre', taxMultiplier2024: 1.20, taxMultiplier2025: 1.20 },
+    { name: 'Brig-Glis', taxMultiplier2024: 1.10, taxMultiplier2025: 1.10 }
+  ],
+  'Vaud': [
+    { name: 'Lausanne', bfsNr: 5586, taxMultiplier2024: 0.79, taxMultiplier2025: 0.79 },
+    { name: 'Montreux', bfsNr: 5886, taxMultiplier2024: 0.69, taxMultiplier2025: 0.69 },
+    { name: 'Yverdon-les-Bains', bfsNr: 5938, taxMultiplier2024: 0.75, taxMultiplier2025: 0.75 },
+    { name: 'Nyon', bfsNr: 5724, taxMultiplier2024: 0.60, taxMultiplier2025: 0.60 },
+    { name: 'Vevey', bfsNr: 5887, taxMultiplier2024: 0.78, taxMultiplier2025: 0.78 },
+    { name: 'Morges', bfsNr: 5722, taxMultiplier2024: 0.68, taxMultiplier2025: 0.68 },
+    { name: 'Gland', bfsNr: 5719, taxMultiplier2024: 0.55, taxMultiplier2025: 0.55 }
+  ],
+  'Zug': [
+    { name: 'Zug', bfsNr: 1701, taxMultiplier2024: 0.55, taxMultiplier2025: 0.55 },
+    { name: 'Baar', bfsNr: 1702, taxMultiplier2024: 0.52, taxMultiplier2025: 0.52 },
+    { name: 'Cham', bfsNr: 1703, taxMultiplier2024: 0.58, taxMultiplier2025: 0.58 },
+    { name: 'Risch', bfsNr: 1709, taxMultiplier2024: 0.50, taxMultiplier2025: 0.50 },
+    { name: 'Steinhausen', bfsNr: 1708, taxMultiplier2024: 0.54, taxMultiplier2025: 0.54 }
+  ],
+  'Zürich': [
+    { name: 'Zürich', bfsNr: 261, taxMultiplier2024: 1.19, taxMultiplier2025: 1.19 },
+    { name: 'Winterthur', bfsNr: 230, taxMultiplier2024: 1.22, taxMultiplier2025: 1.22 },
+    { name: 'Uster', bfsNr: 198, taxMultiplier2024: 1.10, taxMultiplier2025: 1.10 },
+    { name: 'Dübendorf', bfsNr: 191, taxMultiplier2024: 0.97, taxMultiplier2025: 0.97 },
+    { name: 'Dietikon', bfsNr: 133, taxMultiplier2024: 1.23, taxMultiplier2025: 1.23 },
+    { name: 'Wetzikon (ZH)', bfsNr: 100, taxMultiplier2024: 1.13, taxMultiplier2025: 1.13 },
+    { name: 'Kloten', bfsNr: 176, taxMultiplier2024: 0.98, taxMultiplier2025: 0.98 },
+    { name: 'Schlieren', bfsNr: 141, taxMultiplier2024: 1.13, taxMultiplier2025: 1.13 },
+    { name: 'Adliswil', bfsNr: 131, taxMultiplier2024: 1.09, taxMultiplier2025: 1.09 },
+    { name: 'Thalwil', bfsNr: 161, taxMultiplier2024: 0.90, taxMultiplier2025: 0.90 },
+    { name: 'Küsnacht (ZH)', bfsNr: 155, taxMultiplier2024: 0.77, taxMultiplier2025: 0.77 },
+    { name: 'Meilen', bfsNr: 157, taxMultiplier2024: 0.87, taxMultiplier2025: 0.87 },
+    { name: 'Horgen', bfsNr: 138, taxMultiplier2024: 0.99, taxMultiplier2025: 0.99 },
+    { name: 'Bülach', bfsNr: 53, taxMultiplier2024: 1.05, taxMultiplier2025: 1.05 },
+    { name: 'Wallisellen', bfsNr: 200, taxMultiplier2024: 0.94, taxMultiplier2025: 0.94 }
+  ]
+};
+
+export const simpleSwissCantons: string[] = Object.keys(simpleSwissMunicipalities).sort((a, b) =>
+  a.localeCompare(b, 'de')
+);
+
+/**
+ * Gets a list of municipality names for a given canton from the simple data structure.
+ * @param cantonName The name of the canton.
+ * @returns An array of municipality names, or an empty array if canton not found.
+ */
+export function getSimpleMunicipalitiesForCanton(cantonName: string): string[] {
+  const municipalitiesWithRates = simpleSwissMunicipalities[cantonName] || [];
+  return municipalitiesWithRates.map(m => m.name).sort((a,b) => a.localeCompare(b, 'de'));
+}
+
+/**
+ * Gets the tax multiplier for a specific municipality and year.
+ * @param cantonName The name of the canton.
+ * @param municipalityName The name of the municipality.
+ * @param year The tax year ('2024' or '2025').
+ * @returns The tax multiplier as a decimal, or a default of 1.0 if not found.
+ */
+export function getSimpleMunicipalityTaxMultiplier(
+  cantonName: string,
+  municipalityName: string,
+  year: '2024' | '2025'
+): number {
+  const municipalitiesInCanton = simpleSwissMunicipalities[cantonName];
+  if (municipalitiesInCanton) {
+    const municipality = municipalitiesInCanton.find(m => m.name === municipalityName);
+    if (municipality) {
+      return municipality[year === '2024' ? 'taxMultiplier2024' : 'taxMultiplier2025'];
+    }
+  }
+  console.warn(`Tax multiplier not found for ${municipalityName}, ${cantonName}, ${year}. Defaulting to 1.0.`);
+  return 1.0;
+}

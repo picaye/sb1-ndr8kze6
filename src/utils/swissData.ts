@@ -7,16 +7,16 @@
  */
 
 import {
-  comprehensiveSwissCantons,
-  getComprehensiveMunicipalitiesForCanton,
-  comprehensiveSwissMunicipalities, // Used by getCantonCode to validate canton names
-  getComprehensiveMunicipalityTaxMultiplier, // Import the new function
-} from '../data/comprehensiveSwissData'; // Assuming this file will contain the full dataset
+  simpleSwissCantons,
+  getSimpleMunicipalitiesForCanton,
+  simpleSwissMunicipalities, // Used by getCantonCode to validate canton names
+  getSimpleMunicipalityTaxMultiplier, // Import the new function
+} from '../data/simpleSwissData'; // Changed back to simpleSwissData
 
 /**
  * Sorted list of Swiss canton names, sourced from the comprehensive dataset.
  */
-export const cantons: string[] = [...comprehensiveSwissCantons]; // Export a copy
+export const cantons: string[] = [...simpleSwissCantons]; // Export a copy
 
 /**
  * Retrieves a list of municipality names for a given canton using the comprehensive data.
@@ -29,7 +29,7 @@ export function getMunicipalitiesForCanton(cantonName: string): string[] {
     return [];
   }
   // Directly use the function from the comprehensive data source
-  const municipalities = getComprehensiveMunicipalitiesForCanton(cantonName);
+  const municipalities = getSimpleMunicipalitiesForCanton(cantonName);
   if (municipalities.length === 0) {
     // console.warn(`[getMunicipalitiesForCanton] No municipalities found for canton: "${cantonName}" in comprehensive data.`);
   }
@@ -41,12 +41,12 @@ export function getMunicipalitiesForCanton(cantonName: string): string[] {
  * @returns An array of canton names.
  */
 export function getAllCantonNames(): string[] {
-  return [...comprehensiveSwissCantons]; // Return a copy
+  return [...simpleSwissCantons]; // Return a copy
 }
 
 /**
  * For the comprehensive data structure, this function checks if the provided name
- * is a valid canton name (a key in comprehensiveSwissMunicipalities).
+ * is a valid canton name (a key in simpleSwissMunicipalities).
  * It does not return a "code" like "ZH" as the data primarily uses full names.
  * If a code is needed, a mapping would have to be reintroduced or managed elsewhere.
  *
@@ -58,10 +58,10 @@ export function getCantonCode(cantonName: string): string | undefined {
     return undefined;
   }
   // Check if the provided name is a key in our comprehensive data structure
-  if (comprehensiveSwissMunicipalities.hasOwnProperty(cantonName)) {
+  if (simpleSwissMunicipalities.hasOwnProperty(cantonName)) {
     return cantonName; // In this model, the "code" is the name itself if it's valid
   }
-  // console.warn(`[getCantonCode] Canton name "${cantonName}" not found in comprehensiveSwissMunicipalities.`);
+  // console.warn(`[getCantonCode] Canton name "${cantonName}" not found in simpleSwissMunicipalities.`);
   return undefined;
 }
 
@@ -83,5 +83,5 @@ export function getMunicipalityTaxMultiplier(
   }
   
   // Directly use the function from the comprehensive data source
-  return getComprehensiveMunicipalityTaxMultiplier(cantonName, municipalityName, year);
+  return getSimpleMunicipalityTaxMultiplier(cantonName, municipalityName, year);
 }
