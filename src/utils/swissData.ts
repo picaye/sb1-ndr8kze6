@@ -1,205 +1,145 @@
-import { municipalities } from '../data/municipalities';
+import { 
+  MUNICIPALITIES_BY_CANTON, 
+  DEFAULT_MULTIPLIERS,
+  Municipality as ComprehensiveMunicipality // Renaming to avoid conflict if any local Municipality type exists
+} from '../data/municipalities/comprehensive';
+import { CANTON_CODES } from '../data/municipalities/constants';
 
-export const cantons = [
-  'Aargau',
-  'Appenzell Ausserrhoden',
-  'Appenzell Innerrhoden',
-  'Basel-Landschaft',
-  'Basel-Stadt',
-  'Bern',
-  'Fribourg',
-  'Geneva',
-  'Glarus',
-  'Graubünden',
-  'Jura',
-  'Luzern',
-  'Neuchâtel',
-  'Nidwalden',
-  'Obwalden',
-  'Schaffhausen',
-  'Schwyz',
-  'Solothurn',
-  'St. Gallen',
-  'Thurgau',
-  'Ticino',
-  'Uri',
-  'Valais',
-  'Vaud',
-  'Zug',
-  'Zürich'
-].sort((a, b) => a.localeCompare(b, 'de'));
+/**
+ * Sorted list of Swiss canton names.
+ */
+export const cantons: string[] = Object.keys(CANTON_CODES)
+  .sort((a, b) => a.localeCompare(b, 'de'));
 
-// Import all canton municipality files
-import { zurichMunicipalities } from '../data/municipalities/zurich';
-import { bernMunicipalities } from '../data/municipalities/bern';
-import { baselMunicipalities } from '../data/municipalities/basel';
-import { genevaMunicipalities } from '../data/municipalities/geneva';
-import { vaudMunicipalities } from '../data/municipalities/vaud';
-import { zugMunicipalities } from '../data/municipalities/zug';
-import { lucerneMunicipalities } from '../data/municipalities/lucerne';
-import { stGallenMunicipalities } from '../data/municipalities/stgallen';
-import { valaisMunicipalities } from '../data/municipalities/valais';
-import { aargauMunicipalities } from '../data/municipalities/aargau';
-import { appenzellInnerrhodenMunicipalities } from '../data/municipalities/appenzell-innerrhoden';
-import { appenzellAusserrhodenMunicipalities } from '../data/municipalities/appenzell-ausserrhoden';
-import { baselLandschaftMunicipalities } from '../data/municipalities/basel-landschaft';
-import { fribourgMunicipalities } from '../data/municipalities/fribourg';
-import { glarusMunicipalities } from '../data/municipalities/glarus';
-import { graubuendenMunicipalities } from '../data/municipalities/graubuenden';
-import { juraMunicipalities } from '../data/municipalities/jura';
-import { neuchatelMunicipalities } from '../data/municipalities/neuchatel';
-import { nidwaldenMunicipalities } from '../data/municipalities/nidwalden';
-import { obwaldenMunicipalities } from '../data/municipalities/obwalden';
-import { schaffhausenMunicipalities } from '../data/municipalities/schaffhausen';
-import { schwyzMunicipalities } from '../data/municipalities/schwyz';
-import { solothurnMunicipalities } from '../data/municipalities/solothurn';
-import { thurgauMunicipalities } from '../data/municipalities/thurgau';
-import { ticinoMunicipalities } from '../data/municipalities/ticino';
-import { uriMunicipalities } from '../data/municipalities/uri';
+/**
+ * Helper function to resolve a canton name or code to its official 2-letter code.
+ * @param cantonIdentifier - The canton name (e.g., "Zürich", "Zurich") or code (e.g., "ZH").
+ * @returns The 2-letter canton code (e.g., "ZH") or undefined if not found.
+ */
+function resolveCantonCode(cantonIdentifier: string): string | undefined {
+  if (!cantonIdentifier) return undefined;
+  const trimmedIdentifier = cantonIdentifier.trim();
 
-// Create a comprehensive mapping for all cantons with their municipalities
-const cantonMunicipalitiesMap: Record<string, { name: string; taxMultiplier: number }[]> = {
-  // Direct mappings
-  'Aargau': aargauMunicipalities,
-  'Appenzell Ausserrhoden': appenzellAusserrhodenMunicipalities,
-  'Appenzell Innerrhoden': appenzellInnerrhodenMunicipalities,
-  'Basel-Stadt': baselMunicipalities.filter(m => m.canton === 'Basel-Stadt'),
-  'Basel-Landschaft': baselLandschaftMunicipalities,
-  'Bern': bernMunicipalities,
-  'Fribourg': fribourgMunicipalities,
-  'Geneva': genevaMunicipalities,
-  'Glarus': glarusMunicipalities,
-  'Graubünden': graubuendenMunicipalities,
-  'Jura': juraMunicipalities,
-  'Luzern': lucerneMunicipalities,
-  'Neuchâtel': neuchatelMunicipalities,
-  'Nidwalden': nidwaldenMunicipalities,
-  'Obwalden': obwaldenMunicipalities,
-  'Schaffhausen': schaffhausenMunicipalities,
-  'Schwyz': schwyzMunicipalities,
-  'Solothurn': solothurnMunicipalities,
-  'St. Gallen': stGallenMunicipalities,
-  'Thurgau': thurgauMunicipalities,
-  'Ticino': ticinoMunicipalities,
-  'Uri': uriMunicipalities,
-  'Valais': valaisMunicipalities,
-  'Vaud': vaudMunicipalities,
-  'Zug': zugMunicipalities,
-  'Zürich': zurichMunicipalities,
-  
-  // Alternative spellings and encoding variants
-  'Zurich': zurichMunicipalities,
-  'Genève': genevaMunicipalities,
-  'Neuchatel': neuchatelMunicipalities,
-  'Graubunden': graubuendenMunicipalities,
-  'St.Gallen': stGallenMunicipalities
-};
+  // Check if it's already a valid 2-letter code present in our comprehensive data
+  if (trimmedIdentifier.length === 2 && MUNICIPALITIES_BY_CANTON[trimmedIdentifier.toUpperCase()]) {
+    return trimmedIdentifier.toUpperCase();
+  }
 
-export function getMunicipalitiesForCanton(canton: string): string[] {
-  const normalizedCanton = canton.trim();
+  // Try to find by full name (case-insensitive and accent-insensitive)
+  const normalizedInput = trimmedIdentifier.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   
-  // Try direct lookup first - this should catch most cases with our expanded mapping
-  const directResult = cantonMunicipalitiesMap[normalizedCanton];
-  if (directResult && directResult.length > 0) {
-    console.log(`Found ${directResult.length} municipalities for canton "${normalizedCanton}" via direct lookup`);
-    return directResult.map(m => m.name);
+  for (const [cantonName, cantonCode] of Object.entries(CANTON_CODES)) {
+    const normalizedCantonName = cantonName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    if (normalizedCantonName === normalizedInput) {
+      return cantonCode;
+    }
   }
   
-  // Try case-insensitive matching
-  const caseInsensitiveKey = Object.keys(cantonMunicipalitiesMap).find(key =>
-    key.toLowerCase() === normalizedCanton.toLowerCase());
-  
-  if (caseInsensitiveKey) {
-    const result = cantonMunicipalitiesMap[caseInsensitiveKey];
-    console.log(`Found ${result.length} municipalities for "${normalizedCanton}" via case-insensitive match to "${caseInsensitiveKey}"`);
-    return result.map(m => m.name);
+  // Fallback: check if the input is a value in CANTON_CODES (i.e., it's a code like 'ZH' but wasn't a direct key match earlier)
+  const upperIdentifier = trimmedIdentifier.toUpperCase();
+  if (Object.values(CANTON_CODES).includes(upperIdentifier)) {
+      return upperIdentifier;
   }
-  
-  // Try removing diacritics/accents
-  const withoutAccents = normalizedCanton.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  const accentKey = Object.keys(cantonMunicipalitiesMap).find(key =>
-    key.normalize("NFD").replace(/[\u0300-\u036f]/g, "") === withoutAccents);
-  
-  if (accentKey) {
-    const result = cantonMunicipalitiesMap[accentKey];
-    console.log(`Found ${result.length} municipalities for "${normalizedCanton}" via accent normalization to "${accentKey}"`);
-    return result.map(m => m.name);
-  }
-  
-  // As a fallback, check the original municipalities object
-  if (municipalities[normalizedCanton] && municipalities[normalizedCanton].length > 0) {
-    const result = municipalities[normalizedCanton];
-    console.log(`Found ${result.length} municipalities for "${normalizedCanton}" via original municipalities object`);
-    return result.map(m => m.name);
-  }
-  
-  // Log a warning for debugging
-  console.warn(`No municipalities found for canton: "${normalizedCanton}"`);
-  console.log("Available cantons:", Object.keys(cantonMunicipalitiesMap).join(", "));
-  
-  // Create a last resort fallback for specific problematic cantons
-  const fallbacks: Record<string, { name: string; taxMultiplier: number }[]> = {
-    'Zürich': zurichMunicipalities,
-    'Bern': bernMunicipalities,
-    'Aargau': aargauMunicipalities,
-    'Vaud': vaudMunicipalities,
-    'Basel': baselMunicipalities
-  };
-  
-  // Check our fallbacks
-  const fallbackKey = Object.keys(fallbacks).find(key =>
-    normalizedCanton.includes(key) || key.includes(normalizedCanton));
-  
-  if (fallbackKey) {
-    const result = fallbacks[fallbackKey];
-    console.log(`Using fallback for "${normalizedCanton}" via partial match to "${fallbackKey}"`);
-    return result.map(m => m.name);
-  }
-  
-  // If all else fails, return an empty array
-  return [];
+
+  console.warn(`[resolveCantonCode] Could not resolve canton identifier: "${cantonIdentifier}" to a known code.`);
+  return undefined;
 }
 
-export function getMunicipalityTaxMultiplier(canton: string, municipality: string): number {
-  const normalizedCanton = canton.trim();
-  const normalizedMunicipality = municipality.trim();
-  
-  // First try using our comprehensive mapping
-  const cantonMunicipalities = cantonMunicipalitiesMap[normalizedCanton];
-  if (cantonMunicipalities) {
-    const found = cantonMunicipalities.find(m => m.name === normalizedMunicipality);
-    if (found) {
-      return found.taxMultiplier;
-    }
+/**
+ * Retrieves a list of municipality names for a given canton.
+ * @param cantonNameOrCode - The name (e.g., "Zürich", "Zurich") or 2-letter code (e.g., "ZH") of the canton.
+ * @returns An array of municipality names, sorted alphabetically. Returns an empty array if the canton is not found or has no municipalities.
+ */
+export function getMunicipalitiesForCanton(cantonNameOrCode: string): string[] {
+  if (!cantonNameOrCode) {
+    console.warn('[getMunicipalitiesForCanton] Canton name or code is empty or undefined.');
+    return [];
   }
-  
-  // If that fails, try case-insensitive search in our comprehensive mapping
-  const caseInsensitiveKey = Object.keys(cantonMunicipalitiesMap).find(key =>
-    key.toLowerCase() === normalizedCanton.toLowerCase());
-  
-  if (caseInsensitiveKey) {
-    const list = cantonMunicipalitiesMap[caseInsensitiveKey];
-    const found = list.find(m => m.name === normalizedMunicipality);
-    if (found) {
-      return found.taxMultiplier;
-    }
-    
-    // Try case-insensitive municipality match
-    const fuzzyMatch = list.find(m =>
-      m.name.toLowerCase() === normalizedMunicipality.toLowerCase());
-    if (fuzzyMatch) {
-      return fuzzyMatch.taxMultiplier;
-    }
+
+  const cantonCode = resolveCantonCode(cantonNameOrCode);
+
+  if (!cantonCode) {
+    console.warn(`[getMunicipalitiesForCanton] No valid canton code found for input: "${cantonNameOrCode}".`);
+    return [];
   }
-  
-  // As a fallback, check the original municipalities object
-  const municipalityList = municipalities[normalizedCanton] || [];
-  const found = municipalityList.find(m => m.name === normalizedMunicipality);
-  if (found) {
-    return found.taxMultiplier;
+
+  const municipalitiesList: ComprehensiveMunicipality[] | undefined = MUNICIPALITIES_BY_CANTON[cantonCode];
+
+  if (municipalitiesList && municipalitiesList.length > 0) {
+    // console.log(`[getMunicipalitiesForCanton] Found ${municipalitiesList.length} municipalities for canton code "${cantonCode}" (input: "${cantonNameOrCode}").`);
+    return municipalitiesList.map(m => m.name).sort((a, b) => a.localeCompare(b, 'de'));
+  } else {
+    console.warn(`[getMunicipalitiesForCanton] No municipalities found in MUNICIPALITIES_BY_CANTON for resolved canton code: "${cantonCode}" (input: "${cantonNameOrCode}").`);
+    return [];
   }
-  
-  // Default to 100 if we can't find the tax multiplier
-  // This is a conventional value used as a baseline in Switzerland
-  return 100;
+}
+
+/**
+ * Retrieves the tax multiplier for a specific municipality and year.
+ * @param cantonNameOrCode - The name (e.g., "Zürich") or 2-letter code (e.g., "ZH") of the canton.
+ * @param municipalityName - The name of the municipality.
+ * @param year - The tax year for which to get the multiplier (e.g., "2024", "2025").
+ * @returns The tax multiplier as a decimal (e.g., 1.19 for 119%). Returns a default of 1.0 if not found.
+ */
+export function getMunicipalityTaxMultiplier(
+  cantonNameOrCode: string,
+  municipalityName: string,
+  year: '2024' | '2025' // Ensure year is a valid key for taxMultiplier
+): number {
+  if (!cantonNameOrCode || !municipalityName) {
+    console.warn('[getMunicipalityTaxMultiplier] Canton or municipality name is empty or undefined.');
+    return 1.0; // Default multiplier
+  }
+
+  const cantonCode = resolveCantonCode(cantonNameOrCode);
+  const normalizedMunicipalityName = municipalityName.trim().toLowerCase();
+
+  if (!cantonCode) {
+    console.warn(`[getMunicipalityTaxMultiplier] No valid canton code found for input: "${cantonNameOrCode}". Using default multiplier.`);
+    return 1.0;
+  }
+
+  const municipalitiesList: ComprehensiveMunicipality[] | undefined = MUNICIPALITIES_BY_CANTON[cantonCode];
+
+  if (municipalitiesList) {
+    const foundMunicipality = municipalitiesList.find(
+      m => m.name.toLowerCase() === normalizedMunicipalityName
+    );
+
+    if (foundMunicipality && foundMunicipality.taxMultiplier && foundMunicipality.taxMultiplier[year] !== undefined) {
+      // console.log(`[getMunicipalityTaxMultiplier] Found specific multiplier for ${municipalityName}, ${cantonCode}, ${year}: ${foundMunicipality.taxMultiplier[year]}`);
+      return foundMunicipality.taxMultiplier[year];
+    } else {
+      // console.log(`[getMunicipalityTaxMultiplier] Specific multiplier not found for ${municipalityName}, ${cantonCode}, ${year}. Falling back to default.`);
+    }
+  } else {
+    // console.log(`[getMunicipalityTaxMultiplier] No municipality list for canton code ${cantonCode}. Falling back to default.`);
+  }
+
+  // Fallback to default multiplier for the canton and year
+  const defaultCantonMultipliers = DEFAULT_MULTIPLIERS[cantonCode];
+  if (defaultCantonMultipliers && defaultCantonMultipliers[year] !== undefined) {
+    console.warn(`[getMunicipalityTaxMultiplier] Using default multiplier for canton ${cantonCode}, year ${year}: ${defaultCantonMultipliers[year]}`);
+    return defaultCantonMultipliers[year];
+  }
+
+  console.warn(`[getMunicipalityTaxMultiplier] No specific or default multiplier found for ${municipalityName}, ${cantonCode}, ${year}. Returning 1.0.`);
+  return 1.0; // Absolute fallback default
+}
+
+/**
+ * Gets a list of all canton names.
+ * @returns An array of canton names.
+ */
+export function getAllCantonNames(): string[] {
+    return [...cantons]; // Return a copy
+}
+
+/**
+ * Gets the canton code for a given canton name.
+ * @param cantonName - The full name of the canton.
+ * @returns The 2-letter canton code or undefined if not found.
+ */
+export function getCantonCode(cantonName: string): string | undefined {
+    return resolveCantonCode(cantonName);
 }

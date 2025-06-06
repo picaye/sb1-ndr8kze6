@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { Toaster } from './components/ui/toaster';
 import { useAuthStore } from './stores/authStore';
 import { logSecurityEvent, sanitizeError, SECURITY_CONSTANTS } from './utils/security/validation';
-import { generateSecurityHeaders, warnIfInsecure, applySecurityHeaders, CSPConfig } from './utils/security/encryption';
+import { generateSecurityHeaders, warnIfInsecure, buildCSP, CSPConfig } from './utils/security/encryption'; // Removed applySecurityHeaders as it's server-side
 
 // Layouts
-import Header from './components/Header';
-import ProtectedRoute from './components/layout/ProtectedRoute';
+import { Header } from './components/Header'; // Changed to named import
+import { ProtectedRoute } from './components/layout/ProtectedRoute'; // Changed to named import
 
 // Pages (Lazy Loaded)
 const HomePage = React.lazy(() => import('./pages/HomePage'));
@@ -45,7 +45,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    const errorId = logSecurityEvent({
+    const errorId = logSecurityEvent({ // logSecurityEvent might not return a string ID directly, adjust if needed
       level: SECURITY_CONSTANTS.LOG_LEVELS.ERROR,
       message: 'Unhandled application error caught by ErrorBoundary',
       data: {
@@ -53,7 +53,8 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
         componentStack: errorInfo.componentStack,
       },
     });
-    this.setState({ errorId: errorId?.toString() }); // Assuming logSecurityEvent returns an ID or similar
+    // Assuming logSecurityEvent is void or returns something else, we might generate a client-side ID or skip it
+    this.setState({ errorId: errorId ? String(errorId) : undefined });
     console.error("Uncaught error:", error, errorInfo);
   }
 
@@ -84,12 +85,13 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
 
 function App() {
-  const { i18n } = useTranslation();
-  const { isAuthenticated, isAdmin, user } = useAuthStore(state => ({
+  const { t, i18n } = useTranslation();
+  const { isAuthenticated, user } = useAuthStore(state => ({
     isAuthenticated: state.isAuthenticated,
-    isAdmin: state.user?.role === 'admin',
     user: state.user,
   }));
+  const isAdmin = user?.role === 'admin';
+
 
   useEffect(() => {
     // Initial language setup
@@ -113,7 +115,7 @@ function App() {
       scriptSrc: ["'self'", "'unsafe-inline'"], // 'unsafe-inline' might be needed for some dev setups or specific libraries, review for production
       styleSrc: ["'self'", "'unsafe-inline'"],  // Same as above for styles
       imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'", "https://api.example.com"], // Replace with actual API endpoints
+      connectSrc: ["'self'"], // Allow connections to self, adjust if external APIs are used
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       frameSrc: ["'none'"], // Disallow framing by default
@@ -126,15 +128,18 @@ function App() {
     // console.log("Applying conceptual security headers:", headers);
     
     // For client-side, we can set a CSP meta tag, though it's less effective than HTTP headers.
-    const cspMetaTag = document.createElement('meta');
-    cspMetaTag.httpEquiv = 'Content-Security-Policy';
-    cspMetaTag.content = buildCSP(cspConfig);
-    document.head.appendChild(cspMetaTag);
+    let cspMetaTag = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+    if (!cspMetaTag) {
+      cspMetaTag = document.createElement('meta');
+      cspMetaTag.setAttribute('http-equiv', 'Content-Security-Policy');
+      document.head.appendChild(cspMetaTag);
+    }
+    cspMetaTag.setAttribute('content', buildCSP(cspConfig));
     
     logSecurityEvent({
       level: SECURITY_CONSTANTS.LOG_LEVELS.INFO,
       message: 'Conceptual security headers and CSP meta tag applied.',
-      data: { headers: Object.keys(headers), csp: cspMetaTag.content }
+      data: { headers: Object.keys(headers), csp: cspMetaTag.getAttribute('content') }
     });
 
   }, [i18n]);

@@ -1,22 +1,39 @@
+import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuthStore } from '../../stores/authStore';
 
-interface Props {
-  children: React.ReactNode;
-  requireAdmin?: boolean;
-  requireAuth?: boolean;
+interface ProtectedRouteProps {
+  isAuthenticated: boolean;
+  isAdminRoute?: boolean;
+  isAdmin?: boolean;
+  element: React.ReactElement;
 }
 
-export function ProtectedRoute({ children, requireAdmin = false, requireAuth = false }: Props) {
-  const { user, isAdmin } = useAuthStore();
+export function ProtectedRoute({
+  isAuthenticated,
+  isAdminRoute = false,
+  isAdmin = false,
+  element,
+}: ProtectedRouteProps) {
+  if (isAdminRoute) {
+    // This is an admin route
+    if (!isAuthenticated) {
+      // User is not authenticated, redirect to login
+      return <Navigate to="/login" replace />;
+    }
+    if (!isAdmin) {
+      // User is authenticated but not an admin, redirect to home or an unauthorized page
+      return <Navigate to="/" replace />;
+    }
+    // User is authenticated and is an admin, render the element
+    return element;
+  }
 
-  if (requireAuth && !user) {
+  // This is a general protected route (not specifically admin)
+  if (!isAuthenticated) {
+    // User is not authenticated, redirect to login
     return <Navigate to="/login" replace />;
   }
 
-  if (requireAdmin && !isAdmin) {
-    return <Navigate to="/" replace />;
-  }
-
-  return <>{children}</>;
+  // User is authenticated (and it's not an admin-only route or they are admin for it), render the element
+  return element;
 }
