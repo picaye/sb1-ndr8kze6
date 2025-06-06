@@ -9,19 +9,18 @@ import { generateSecurityHeaders, warnIfInsecure, buildCSP, CSPConfig } from './
 import { Header } from './components/Header';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 
-// Pages (Lazy Loaded)
-const HomePage = React.lazy(() => import('./pages/HomePage'));
-const AboutPage = React.lazy(() => import('./pages/AboutPage'));
-const ContactPage = React.lazy(() => import('./pages/ContactPage'));
-const LoginPage = React.lazy(() => import('./pages/LoginPage'));
-const ForgotPasswordPage = React.lazy(() => import('./pages/ForgotPasswordPage'));
-const TaxCalculatorPage = React.lazy(() => import('./pages/TaxCalculatorPage'));
-const TaxResultsPage = React.lazy(() => import('./pages/TaxResultsPage'));
-const AdminDashboardPage = React.lazy(() => import('./pages/AdminDashboardPage'));
-const AdminAffiliatesPage = React.lazy(() => import('./pages/AdminAffiliatesPage'));
-const AdminSettingsPage = React.lazy(() => import('./pages/AdminSettingsPage'));
-const AdminUsersPage = React.lazy(() => import('./pages/AdminUsersPage'));
-const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
+// Import existing components directly
+import { PersonalInfoForm } from './components/PersonalInfoForm';
+import { FinancialInfoForm } from './components/FinancialInfoForm';
+import { TaxOptimizationResults } from './components/TaxOptimizationResults';
+import { LoginForm } from './components/auth/LoginForm';
+import { ForgotPasswordForm } from './components/auth/ForgotPasswordForm';
+import { AdminDashboard } from './components/admin/AdminDashboard';
+// import AffiliateManagement from './components/admin/affiliates/AffiliateManagement'; // Removed
+import { AdminSettings } from './components/admin/AdminSettings';
+import { AdminUserList } from './components/admin/AdminUserList';
+// import { AboutPage as AboutPageComponent } from './components/AboutPage'; // Removed
+// import { ContactPage as ContactPageComponent } from './components/ContactPage'; // Removed
 
 
 interface ErrorBoundaryProps {
@@ -44,7 +43,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    const loggedEvent = logSecurityEvent({ 
+    logSecurityEvent({
       level: SECURITY_CONSTANTS.LOG_LEVELS.ERROR,
       message: 'Unhandled application error caught by ErrorBoundary',
       data: {
@@ -52,10 +51,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
         componentStack: errorInfo.componentStack,
       },
     });
-    // logSecurityEvent is void, so we can't directly get an ID from it.
-    // If an ID is needed, it should be generated separately or returned by logSecurityEvent.
-    // For now, let's assume no ID is returned.
-    this.setState({ errorId: undefined }); 
+    this.setState({ errorId: undefined });
     console.error("Uncaught error:", error, errorInfo);
   }
 
@@ -84,6 +80,58 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 }
 
+// Simple inline components for routes
+const CalculatorFormsPage = () => (
+  <div className="space-y-8">
+    <PersonalInfoForm />
+    {/* Navigation to FinancialInfoForm is handled within PersonalInfoForm */}
+  </div>
+);
+
+const FinancialInfoPage = () => (
+  <div className="space-y-8">
+    <FinancialInfoForm />
+  </div>
+);
+
+
+const ResultsPage = () => <TaxOptimizationResults />;
+const LoginPageComponent = () => <LoginForm />;
+const ForgotPasswordPageComponent = () => <ForgotPasswordForm />;
+const AdminDashboardPageComponent = () => <AdminDashboard />;
+// const AdminAffiliatesPageComponent = () => <AffiliateManagement />; // Replaced with placeholder
+const AdminAffiliatesPlaceholderPage = () => (
+  <div>
+    <h1 className="text-xl font-bold">Affiliate Management</h1>
+    <p>This page is under construction.</p>
+  </div>
+);
+const AdminSettingsPageComponent = () => <AdminSettings />;
+const AdminUsersPageComponent = () => <AdminUserList />;
+
+const AboutPlaceholderPage = () => (
+  <div>
+    <h1 className="text-xl font-bold">About Us</h1>
+    <p>Information about the Swiss Tax Calculator AI will be here.</p>
+  </div>
+);
+
+const ContactPlaceholderPage = () => (
+  <div>
+    <h1 className="text-xl font-bold">Contact Us</h1>
+    <p>Contact information will be available here.</p>
+    {/* Consider adding a simple ContactForm component here if it exists and is stable */}
+  </div>
+);
+
+
+const NotFoundPageComponent = () => (
+  <div className="text-center py-10">
+    <h1 className="text-4xl font-bold">404 - Page Not Found</h1>
+    <p className="mt-4">The page you are looking for does not exist.</p>
+  </div>
+);
+
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -95,33 +143,30 @@ function App() {
 
 
   useEffect(() => {
-    // Initial language setup
     const savedLanguage = localStorage.getItem('i18nextLng') || 'en';
     i18n.changeLanguage(savedLanguage);
 
-    // Log application startup
     logSecurityEvent({
       level: SECURITY_CONSTANTS.LOG_LEVELS.INFO,
       message: 'Application started',
       data: { userAgent: navigator.userAgent, language: savedLanguage }
     });
 
-    // Warn if running in an insecure context (HTTP)
     warnIfInsecure();
 
     const cspConfig: CSPConfig = {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"], 
-      styleSrc: ["'self'", "'unsafe-inline'"], 
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'"], 
+      connectSrc: ["'self'"],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
-      frameSrc: ["'none'"], 
+      frameSrc: ["'none'"],
       upgradeInsecureRequests: true,
     };
     const headers = generateSecurityHeaders({ enableCSP: true, reportOnly: false });
-    
+
     let cspMetaTag = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
     if (!cspMetaTag) {
       cspMetaTag = document.createElement('meta');
@@ -129,7 +174,7 @@ function App() {
       document.head.appendChild(cspMetaTag);
     }
     cspMetaTag.setAttribute('content', buildCSP(cspConfig));
-    
+
     logSecurityEvent({
       level: SECURITY_CONSTANTS.LOG_LEVELS.INFO,
       message: 'Conceptual security headers and CSP meta tag applied.',
@@ -146,78 +191,72 @@ function App() {
           <main className="flex-grow container mx-auto px-4 py-8">
             <Suspense fallback={<div className="text-center py-10">{t('common.loading')}</div>}>
               <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/" element={<Navigate to="/calculator" replace />} />
+                <Route path="/about" element={<AboutPlaceholderPage />} />
+                <Route path="/contact" element={<ContactPlaceholderPage />} />
+                <Route path="/login" element={<LoginPageComponent />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPageComponent />} />
                 
-                <Route 
-                  path="/calculator" 
+                <Route path="/calculator" element={<CalculatorFormsPage />} />
+                <Route path="/financial-info" element={<FinancialInfoPage />} />
+
+                <Route
+                  path="/results"
                   element={
                     <ProtectedRoute
                       isAuthenticated={isAuthenticated}
-                      element={<TaxCalculatorPage />}
+                      element={<ResultsPage />}
                     />
-                  } 
-                />
-                <Route 
-                  path="/results" 
-                  element={
-                    <ProtectedRoute
-                      isAuthenticated={isAuthenticated}
-                      element={<TaxResultsPage />}
-                    />
-                  } 
+                  }
                 />
 
                 {/* Admin Routes */}
-                <Route 
-                  path="/admin" 
+                <Route
+                  path="/admin"
                   element={
                     <ProtectedRoute
                       isAuthenticated={isAuthenticated}
                       isAdminRoute={true}
                       isAdmin={isAdmin}
-                      element={<AdminDashboardPage />}
+                      element={<AdminDashboardPageComponent />}
                     />
-                  } 
+                  }
                 />
-                <Route 
-                  path="/admin/affiliates" 
+                <Route
+                  path="/admin/affiliates"
                   element={
                     <ProtectedRoute
                       isAuthenticated={isAuthenticated}
                       isAdminRoute={true}
                       isAdmin={isAdmin}
-                      element={<AdminAffiliatesPage />}
+                      element={<AdminAffiliatesPlaceholderPage />}
                     />
-                  } 
+                  }
                 />
-                <Route 
-                  path="/admin/settings" 
+                <Route
+                  path="/admin/settings"
                   element={
                     <ProtectedRoute
                       isAuthenticated={isAuthenticated}
                       isAdminRoute={true}
                       isAdmin={isAdmin}
-                      element={<AdminSettingsPage />}
+                      element={<AdminSettingsPageComponent />}
                     />
-                  } 
+                  }
                 />
-                  <Route 
-                  path="/admin/users" 
+                  <Route
+                  path="/admin/users"
                   element={
                     <ProtectedRoute
                       isAuthenticated={isAuthenticated}
                       isAdminRoute={true}
                       isAdmin={isAdmin}
-                      element={<AdminUsersPage />}
+                      element={<AdminUsersPageComponent />}
                     />
-                  } 
+                  }
                 />
-                
-                <Route path="/404" element={<NotFoundPage />} />
+
+                <Route path="/404" element={<NotFoundPageComponent />} />
                 <Route path="*" element={<Navigate to="/404" replace />} />
               </Routes>
             </Suspense>
