@@ -25,9 +25,11 @@ import { BaselStadtCollector } from './collectors/basel-stadt-collector';
 import { ZugCollector } from './collectors/zug-collector';
 import { SchaffhausenCollector } from './collectors/schaffhausen-collector';
 import { GraubuendenCollector } from './collectors/graubuenden-collector';
-import { JuraCollector } from './collectors/jura-collector'; // Added import
+import { JuraCollector } from './collectors/jura-collector';
+import { NeuchatelCollector } from './collectors/neuchatel-collector'; // Added import
 // Import other implemented canton collectors here as they are created
-// e.g., import { AppenzellCollector } from './collectors/appenzell-collector';
+// e.g., import { SchwyzCollector } from './collectors/schwyz-collector';
+// e.g., import { GlarusCollector } from './collectors/glarus-collector';
 
 /**
  * Comprehensive list of Swiss Cantons with names in multiple languages and their codes.
@@ -169,7 +171,7 @@ export const PREDEFINED_DATA_SOURCES: DataSource[] = CANTON_CODES_FOR_POPULATION
       break;
     case 'VD':
       url = `https://www.vd.ch/themes/etat-droit-finances/impots/personnes-physiques/baremes-et-coefficients/`;
-      notes += ' Taux d\'impôt communal en % de l\'impôt cantonal de base.';
+      notes += ' Taux d\\\'impôt communal en % de l\\\'impôt cantonal de base.';
       break;
     case 'VS':
       url = `https://www.vs.ch/web/scc/coefficients-et-baremes`;
@@ -306,11 +308,11 @@ export class CollectorFactory {
         return new SchaffhausenCollector(dataSource);
       case 'GR':
         return new GraubuendenCollector(dataSource);
-      case 'JU': // Added Jura
+      case 'JU':
         return new JuraCollector(dataSource);
+      case 'NE': // Added Neuchâtel
+        return new NeuchatelCollector(dataSource);
       // Add cases for other implemented collectors:
-      // case 'NE':
-      //   return new NeuchatelCollector(dataSource);
       // case 'SZ':
       //   return new SchwyzCollector(dataSource);
       // case 'GL':
