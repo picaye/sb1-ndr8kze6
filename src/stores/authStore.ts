@@ -10,7 +10,6 @@ interface User {
 }
 
 interface UserRecord {
-  password: string;
   user: User;
 }
 
@@ -34,6 +33,9 @@ interface AuthState {
   loadVersion: (versionName: string) => void;
 }
 
+// SECURITY: Password material must NEVER enter client-side state or persisted
+// storage. Credential verification happens in-memory only; the store and the
+// persisted 'auth-storage' slice keep user identity data, never passwords.
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -44,7 +46,7 @@ export const useAuthStore = create<AuthState>()(
       currentVersionName: null,
       login: async (email: string, password: string, isSignUp = false) => {
         const storedUsers = localStorage.getItem('users');
-        const users: Record<string, UserRecord> = storedUsers ? JSON.parse(storedUsers) : {};
+        const users: Record<string, { password: string; user: User }> = storedUsers ? JSON.parse(storedUsers) : {};
 
         if (isSignUp) {
           if (users[email]) {
@@ -58,13 +60,13 @@ export const useAuthStore = create<AuthState>()(
           const hashedPassword = await bcrypt.hash(password, 10);
           users[email] = { password: hashedPassword, user };
           localStorage.setItem('users', JSON.stringify(users));
-          set({ user, isAuthenticated: true, userVersions: { ['default']: { password: hashedPassword, user } }, currentVersionName: 'default' });
+          set({ user, isAuthenticated: true, userVersions: { ['default']: { user } }, currentVersionName: 'default' });
         } else {
           const userRecord = users[email];
           if (!userRecord || !(await bcrypt.compare(password, userRecord.password))) {
             throw new Error('Invalid credentials');
           }
-          set({ user: userRecord.user, isAuthenticated: true, userVersions: { ['default']: { password, user: userRecord.user } }, currentVersionName: 'default' });
+          set({ user: userRecord.user, isAuthenticated: true, userVersions: { ['default']: { user: userRecord.user } }, currentVersionName: 'default' });
         }
       },
       loginWithGoogle: async () => {
@@ -75,11 +77,11 @@ export const useAuthStore = create<AuthState>()(
           name: 'Google User',
           picture: 'https://example.com/avatar.jpg'
         };
-        set({ user: googleUser, isAuthenticated: true, userVersions: { ['default']: { password: '', user: googleUser } }, currentVersionName: 'default' });
+        set({ user: googleUser, isAuthenticated: true, userVersions: { ['default']: { user: googleUser } }, currentVersionName: 'default' });
       },
       resetPassword: async (email: string) => {
         const storedUsers = localStorage.getItem('users');
-        const users: Record<string, UserRecord> = storedUsers ? JSON.parse(storedUsers) : {};
+        const users: Record<string, { password: string; user: User }> = storedUsers ? JSON.parse(storedUsers) : {};
         const userRecord = users[email];
         if (!userRecord) {
           throw new Error('User not found');
@@ -95,8 +97,7 @@ export const useAuthStore = create<AuthState>()(
         const user = get().user;
         if (!user) return;
         const userVersions = get().userVersions;
-        const password = userVersions[get().currentVersionName || 'default']?.password || '';
-        set({ userVersions: { ...userVersions, [versionName]: { password, user } } });
+        set({ userVersions: { ...userVersions, [versionName]: { user } } });
       },
       loadVersion: (versionName: string) => {
         const userVersions = get().userVersions;
@@ -109,6 +110,13 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+        isAdmin: state.isAdmin,
+        userVersions: state.userVersions,
+        currentVersionName: state.currentVersionName
+      })
     }
   )
 );
